@@ -302,7 +302,9 @@ async function firestoreRequest(config, method, documentPath = "", body, params 
     });
   } catch (error) {
     if (error.name === "AbortError") {
-      throw new Error(`Firestore sem resposta em ${FIRESTORE_TIMEOUT_MS / 1000}s.`);
+      throw new Error(`Firestore sem resposta em ${FIRESTORE_TIMEOUT_MS / 1000}s.`, {
+        cause: error,
+      });
     }
     throw error;
   } finally {

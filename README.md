@@ -108,10 +108,13 @@ O link ficara parecido com:
 https://guilhermegalvaosilva.github.io/Gesto-de-passagens-e-dirias/
 ```
 
-Observacao: GitHub Pages publica apenas o frontend. Para formularios e painel
-administrativo funcionarem nesse link, publique o backend em Render/Railway e
-crie no GitHub a variavel `VITE_API_BASE` apontando para a API publicada, por
-exemplo:
+Observacao: GitHub Pages publica apenas o frontend. Neste projeto, quando o app
+abre em `github.io` sem uma variavel `VITE_API_BASE` configurada, ele usa o
+Firebase Firestore direto no navegador. Por isso o link do Pages funciona mesmo
+sem um backend Node publicado.
+
+Se preferir usar um backend publicado em Render/Railway, crie no GitHub a
+variavel `VITE_API_BASE` apontando para a API publicada, por exemplo:
 
 ```text
 https://seu-backend.onrender.com/api

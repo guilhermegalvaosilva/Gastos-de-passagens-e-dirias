@@ -1,5 +1,9 @@
 import { API_BASE, DEFAULT_ADMIN_CREDENTIALS } from "../config/appConfig";
 import { STORAGE_KEYS } from "../config/storageKeys";
+import {
+  firebaseApiRequest,
+  shouldUseFirebaseDirect,
+} from "./firebaseApi";
 import { readJSON, removeStorage, writeJSON } from "./storage";
 
 export function savedSession() {
@@ -20,6 +24,10 @@ export function saveSession(payload) {
 }
 
 export async function apiRequest(path, options = {}) {
+  if (shouldUseFirebaseDirect(API_BASE)) {
+    return firebaseApiRequest(path, options);
+  }
+
   const token = savedSession().token;
   let response;
   try {
@@ -32,11 +40,15 @@ export async function apiRequest(path, options = {}) {
       },
     });
   } catch {
-    throw new Error(
-      "Backend indisponivel. Inicie o servidor com `npm run dev:api` e tente novamente.",
-    );
+    if (shouldUseFirebaseDirect("/api")) {
+      return firebaseApiRequest(path, options);
+    }
+    throw new Error("Backend indisponivel. Inicie o servidor com `npm run dev:api` e tente novamente.");
   }
   const payload = await response.json().catch(() => ({}));
+  if (response.status === 404 && shouldUseFirebaseDirect("/api")) {
+    return firebaseApiRequest(path, options);
+  }
   if (!response.ok) {
     throw new Error(payload.error || "Erro ao acessar o backend.");
   }
