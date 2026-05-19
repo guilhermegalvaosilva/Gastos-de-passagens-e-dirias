@@ -2,12 +2,12 @@ export function Message({ message }) {
   if (!message) return null;
 
   const icons = {
-    error: "❌",
-    warning: "⚠️",
-    success: "✅",
+    error: "!",
+    warning: "!",
+    success: "✓",
   };
 
-  const icon = icons[message.type] || "ℹ️";
+  const icon = icons[message.type] || "i";
   const tone =
     message.type === "error"
       ? "error"

@@ -112,7 +112,6 @@ function parseCollectionPath(path) {
   const [collectionKey, id = ""] = cleanPath.split("/");
   return {
     collection: COLLECTIONS[collectionKey],
-    collectionKey,
     id: decodeURIComponent(id),
   };
 }
