@@ -74,29 +74,26 @@ function Metric({ title, value, note }) {
   );
 }
 
-function DonutChart({ title, value, total, caption, tone = "primary" }) {
-  const ratio = percent(value, total);
-  const radius = 42;
-  const circumference = 2 * Math.PI * radius;
-  const filled = total ? (ratio / 100) * circumference : 0;
-
+function OperationalSummaryChart({ rows }) {
   return (
-    <article className={`donut-card ${tone}`}>
-      <svg className="donut-chart" viewBox="0 0 112 112" role="img" aria-label={`${title}: ${ratio}%`}>
-        <circle className="donut-track" cx="56" cy="56" r={radius} />
-        <circle
-          className="donut-value"
-          cx="56"
-          cy="56"
-          r={radius}
-          strokeDasharray={`${filled} ${circumference - filled}`}
-        />
-        <text x="56" y="53" textAnchor="middle">{ratio}%</text>
-        <text x="56" y="68" textAnchor="middle">{value}/{total}</text>
-      </svg>
-      <div className="donut-copy">
-        <h4>{title}</h4>
-        <p>{caption}</p>
+    <article className="chart-card operational-summary-card">
+      <div className="chart-heading">
+        <h4>Resumo em gráfico</h4>
+        <small>Comparativo dos principais indicadores operacionais</small>
+      </div>
+      <div className="operational-summary-chart">
+        {rows.map((row) => (
+          <div className="operational-summary-row" key={row.label}>
+            <div>
+              <span>{row.label}</span>
+              <strong>{row.ratio}%</strong>
+            </div>
+            <div aria-hidden="true">
+              <span style={{ width: `${Math.max(8, row.ratio)}%` }} />
+            </div>
+            <small>{row.note}</small>
+          </div>
+        ))}
       </div>
     </article>
   );
@@ -184,6 +181,24 @@ export function Dashboard({ requests }) {
     statusCounts[label] += 1;
   });
 
+  const summaryRows = [
+    {
+      label: "Andamento",
+      ratio: percent(openRows.length, total),
+      note: `${openRows.length}/${total} em andamento | ${closedRows.length} encerrada(s)`,
+    },
+    {
+      label: "Voos informados",
+      ratio: percent(passageRows.length - missingFlight.length, passageRows.length),
+      note: `${passageRows.length - missingFlight.length}/${passageRows.length} com voo | ${missingFlight.length} sem voo`,
+    },
+    {
+      label: "Diárias com valor",
+      ratio: percent(dailyRowsWithValue.length, dailyRows.length),
+      note: `${dailyRowsWithValue.length}/${dailyRows.length} com valor | ${compactCurrency(totalDaily)} estimados`,
+    },
+  ];
+
   const sectorRows = topEntries(requests, (item) => item.setorFiocruz, 5);
   const projectRows = topEntries(requests, (item) => item.metaProjeto || item.idFiotec, 5);
   const last = requests[0] ? createdAtDisplay(requests[0]) : "-";
@@ -212,28 +227,7 @@ export function Dashboard({ requests }) {
         </div>
 
         <div className="dashboard-grid-primary">
-          <div className="dashboard-donut-grid">
-            <DonutChart
-              title="Andamento"
-              value={openRows.length}
-              total={total}
-              caption={`${closedRows.length} encerrada(s) ou cancelada(s)`}
-            />
-            <DonutChart
-              title="Voos informados"
-              value={passageRows.length - missingFlight.length}
-              total={passageRows.length}
-              caption={`${missingFlight.length} passagem(ns) sem voo`}
-              tone="accent"
-            />
-            <DonutChart
-              title="Diárias com valor"
-              value={dailyRowsWithValue.length}
-              total={dailyRows.length}
-              caption={`${formatCurrency(totalDaily)} estimados`}
-              tone="soft"
-            />
-          </div>
+          <OperationalSummaryChart rows={summaryRows} />
           <TimelineList rows={upcoming} />
         </div>
 

@@ -1,4 +1,4 @@
-import { formatDate, normalizeText, normalizedFilterText } from "../../utils/formatters";
+import { normalizeText, normalizedFilterText } from "../../utils/formatters";
 
 function routeKey(item) {
   const origin = normalizeText(item.localOrigem);
@@ -23,12 +23,59 @@ function countRoutes(rows) {
     .slice(0, 6);
 }
 
+function countStatus(rows) {
+  return Object.entries(
+    rows.reduce((acc, item) => {
+      const key = normalizeText(item.status) || "Recebida";
+      acc[key] = (acc[key] || 0) + 1;
+      return acc;
+    }, {}),
+  ).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+}
+
 function FlightMetric({ label, value, note }) {
   return (
     <article className="flight-metric">
       <span>{label}</span>
       <strong>{value}</strong>
       <small>{note}</small>
+    </article>
+  );
+}
+
+function FlightStatusChart({ rows, total }) {
+  const max = Math.max(...rows.map(([, value]) => value), 1);
+  const mainStatus = rows[0];
+
+  return (
+    <article className="chart-card flight-status-card">
+      <div className="chart-heading">
+        <h4>Status das passagens</h4>
+        <small>
+          {mainStatus
+            ? `${mainStatus[0]} concentra ${mainStatus[1]} pedido(s)`
+            : "Sem passagens para analisar"}
+        </small>
+      </div>
+
+      <div className="flight-status-chart">
+        {rows.length ? (
+          rows.map(([status, value]) => (
+            <div className="flight-status-row" key={status}>
+              <div>
+                <span>{status}</span>
+                <strong>{value}</strong>
+              </div>
+              <div aria-hidden="true">
+                <span style={{ width: `${Math.max(8, percent(value, max))}%` }} />
+              </div>
+              <small>{percent(value, total)}% das passagens</small>
+            </div>
+          ))
+        ) : (
+          <div className="empty-records">Nenhuma passagem encontrada.</div>
+        )}
+      </div>
     </article>
   );
 }
@@ -40,6 +87,7 @@ export function FlightsPanel({ requests }) {
   const withFlight = passageRows.filter((item) => normalizeText(item.vooIda));
   const missingFlight = passageRows.filter((item) => !normalizeText(item.vooIda));
   const routes = countRoutes(passageRows);
+  const statusRows = countStatus(passageRows);
   const completion = percent(withFlight.length, passageRows.length);
 
   return (
@@ -50,7 +98,7 @@ export function FlightsPanel({ requests }) {
             <span className="section-kicker">Logística</span>
             <h3>Mapa de voos e rotas</h3>
             <p className="table-note">
-              Acompanhe indicações de voo, pendências e rotas mais recorrentes.
+              Acompanhe indicações de voo, status das passagens e rotas mais recorrentes.
             </p>
           </div>
           <div className="flight-completion" aria-label={`${completion}% dos voos informados`}>
@@ -104,29 +152,7 @@ export function FlightsPanel({ requests }) {
             </div>
           </article>
 
-          <article className="chart-card flight-pending-card">
-            <div className="chart-heading">
-              <h4>Pendências de voo</h4>
-            </div>
-            <div className="flight-pending-list">
-              {missingFlight.length ? (
-                missingFlight.slice(0, 6).map((item) => (
-                  <div className="flight-pending-item" key={item.id}>
-                    <strong>{item.nomeCompleto || item.nomeEvento || item.id}</strong>
-                    <span>
-                      {formatDate(item.dataIda) || "Sem data"} | {item.localOrigem || "-"} -{" "}
-                      {item.localDestino || "-"}
-                    </span>
-                  </div>
-                ))
-              ) : (
-                <div className="flight-clear-state">
-                  <strong>Tudo certo</strong>
-                  <span>Nenhuma passagem aguardando indicação de voo.</span>
-                </div>
-              )}
-            </div>
-          </article>
+          <FlightStatusChart rows={statusRows} total={passageRows.length} />
         </div>
       </div>
     </section>

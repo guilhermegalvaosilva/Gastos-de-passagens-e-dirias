@@ -831,70 +831,185 @@ select:focus,
 }
 
 .dashboard-grid-primary {
-  grid-template-columns: minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1.1fr) minmax(320px, 0.9fr);
+  align-items: stretch;
 }
 
-.dashboard-donut-grid {
-  grid-template-columns: repeat(3, minmax(230px, 1fr));
+.operational-summary-card {
+  align-content: start;
+}
+
+.operational-summary-chart {
+  display: grid;
+  gap: 16px;
+}
+
+.operational-summary-row {
+  display: grid;
+  gap: 8px;
+}
+
+.operational-summary-row > div:first-child {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
   gap: 12px;
 }
 
-.donut-card {
-  min-height: 138px;
-  grid-template-columns: 82px minmax(0, 1fr);
-  align-items: center;
+.operational-summary-row span {
+  color: #111;
+  font-weight: 900;
+}
+
+.operational-summary-row strong {
+  color: #111;
+  font-size: 1.45rem;
+  font-weight: 800;
+}
+
+.operational-summary-row > div:nth-child(2) {
+  height: 14px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #e9e9e3;
+}
+
+.operational-summary-row > div:nth-child(2) span {
+  height: 100%;
+  display: block;
+  border-radius: inherit;
+  background: #202020;
+}
+
+.operational-summary-row small {
+  color: #55534f;
+  font-size: 0.86rem;
+}
+
+.finance-content-grid.enhanced {
+  grid-template-columns: minmax(0, 1.35fr) minmax(300px, 0.9fr);
+}
+
+.flight-status-card {
+  align-content: start;
+}
+
+.flight-status-chart {
+  display: grid;
   gap: 14px;
-  padding: 16px;
 }
 
-.donut-chart {
-  width: 82px;
-  height: 82px;
+.flight-status-row {
+  display: grid;
+  gap: 7px;
 }
 
-.donut-track,
-.donut-value {
-  stroke-width: 13;
+.flight-status-row > div:first-child {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
 }
 
-.donut-chart text:first-of-type {
+.flight-status-row span {
+  color: #111;
+  font-weight: 900;
+}
+
+.flight-status-row strong {
+  color: #111;
+  font-size: 1.1rem;
+}
+
+.flight-status-row > div:last-of-type {
+  height: 11px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #e9e9e3;
+}
+
+.flight-status-row > div:last-of-type span {
+  height: 100%;
+  display: block;
+  border-radius: inherit;
+  background: #202020;
+}
+
+.flight-status-row small {
+  color: #66645f;
+  font-size: 0.82rem;
+}
+
+.finance-gauge-card {
+  place-items: center;
+  min-height: 240px;
+}
+
+.finance-gauge {
+  width: 136px;
+  height: 136px;
+}
+
+.finance-gauge text:first-of-type {
+  fill: #111;
   font-size: 22px;
   font-weight: 900;
 }
 
-.donut-chart text:last-of-type {
-  font-size: 10px;
+.finance-gauge text:last-of-type {
+  fill: #66645f;
+  font-size: 9px;
   font-weight: 800;
+  text-transform: uppercase;
 }
 
-.donut-copy {
-  min-width: 0;
+.finance-column-card {
+  min-height: 240px;
+}
+
+.finance-column-chart {
   display: grid;
-  gap: 6px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  min-height: 170px;
+  align-items: end;
 }
 
-.donut-card h4 {
-  max-width: 11rem;
-  margin: 0;
+.finance-column {
+  display: grid;
+  gap: 7px;
+  text-align: center;
+}
+
+.finance-column > div {
+  height: 116px;
+  display: flex;
+  align-items: end;
+  justify-content: center;
+  border-bottom: 1px solid #111;
+}
+
+.finance-column > div span {
+  width: min(46px, 68%);
+  min-height: 8px;
+  display: block;
+  background: #202020;
+}
+
+.finance-column strong {
   color: #111;
-  font-size: clamp(1rem, 1.2vw, 1.15rem);
-  line-height: 1.16;
+  font-size: 1.25rem;
 }
 
-.donut-card p {
-  max-width: 13rem;
-  margin: 0;
+.finance-column small {
   color: #55534f;
-  font-size: 0.9rem;
-  line-height: 1.45;
+  font-size: 0.78rem;
+  line-height: 1.25;
 }
 
 @media (max-width: 1180px) {
-  .dashboard-donut-grid {
+  .dashboard-grid-primary,
+  .finance-content-grid.enhanced {
     grid-template-columns: 1fr;
-  }
-
-  .donut-card {
-    grid-template-columns: 82px minmax(0, 1fr);
   }
 }

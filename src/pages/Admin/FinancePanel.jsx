@@ -64,6 +64,61 @@ function FinanceBarList({ title, rows, total, empty }) {
   );
 }
 
+function FinanceDistribution({ valuedRows, total }) {
+  const buckets = [
+    ["Até R$ 500", valuedRows.filter(({ value }) => value <= 500).length],
+    ["R$ 501 a R$ 1.500", valuedRows.filter(({ value }) => value > 500 && value <= 1500).length],
+    ["Acima de R$ 1.500", valuedRows.filter(({ value }) => value > 1500).length],
+  ];
+  const max = Math.max(...buckets.map(([, value]) => value), 1);
+
+  return (
+    <article className="chart-card finance-column-card">
+      <div className="chart-heading">
+        <h4>Faixas de valores</h4>
+        <small>{formatCurrency(total)} distribuídos por solicitação</small>
+      </div>
+      <div className="finance-column-chart">
+        {buckets.map(([label, value]) => (
+          <div className="finance-column" key={label}>
+            <div>
+              <span style={{ height: `${Math.max(8, (value / max) * 100)}%` }} />
+            </div>
+            <strong>{value}</strong>
+            <small>{label}</small>
+          </div>
+        ))}
+      </div>
+    </article>
+  );
+}
+
+function FinanceGauge({ coverage }) {
+  const radius = 42;
+  const circumference = 2 * Math.PI * radius;
+  const filled = (coverage / 100) * circumference;
+
+  return (
+    <article className="chart-card finance-gauge-card">
+      <div className="chart-heading">
+        <h4>Qualidade financeira</h4>
+      </div>
+      <svg className="finance-gauge" viewBox="0 0 112 112" role="img" aria-label={`${coverage}% de cobertura de valores`}>
+        <circle className="donut-track" cx="56" cy="56" r={radius} />
+        <circle
+          className="donut-value"
+          cx="56"
+          cy="56"
+          r={radius}
+          strokeDasharray={`${filled} ${circumference - filled}`}
+        />
+        <text x="56" y="55" textAnchor="middle">{coverage}%</text>
+        <text x="56" y="70" textAnchor="middle">cobertura</text>
+      </svg>
+    </article>
+  );
+}
+
 export function FinancePanel({ requests }) {
   const dailyRows = requests.filter(hasDaily);
   const valuedRows = dailyRows
@@ -98,37 +153,16 @@ export function FinancePanel({ requests }) {
         </div>
 
         <div className="finance-metric-grid">
-          <FinanceMetric
-            label="Média por solicitação"
-            value={formatCurrency(average)}
-            note="Média apenas entre registros com valor."
-            highlight
-          />
-          <FinanceMetric
-            label="Cobertura de valores"
-            value={`${coverage}%`}
-            note={`${valuedRows.length} de ${dailyRows.length} diária(s) preenchida(s).`}
-          />
-          <FinanceMetric
-            label="Sem valor informado"
-            value={missingValue}
-            note="Diárias que precisam de complemento."
-          />
+          <FinanceMetric label="Média por solicitação" value={formatCurrency(average)} note="Média apenas entre registros com valor." highlight />
+          <FinanceMetric label="Cobertura de valores" value={`${coverage}%`} note={`${valuedRows.length} de ${dailyRows.length} diária(s) preenchida(s).`} />
+          <FinanceMetric label="Sem valor informado" value={missingValue} note="Diárias que precisam de complemento." />
         </div>
 
-        <div className="finance-content-grid">
-          <FinanceBarList
-            title="Distribuição por setor"
-            rows={bySector}
-            total={total}
-            empty="Nenhum valor por setor."
-          />
-          <FinanceBarList
-            title="Distribuição por status"
-            rows={byStatus}
-            total={total}
-            empty="Nenhum valor por status."
-          />
+        <div className="finance-content-grid enhanced">
+          <FinanceGauge coverage={coverage} />
+          <FinanceDistribution valuedRows={valuedRows} total={total} />
+          <FinanceBarList title="Distribuição por setor" rows={bySector} total={total} empty="Nenhum valor por setor." />
+          <FinanceBarList title="Distribuição por status" rows={byStatus} total={total} empty="Nenhum valor por status." />
         </div>
 
         <article className="chart-card finance-ranking-card">
