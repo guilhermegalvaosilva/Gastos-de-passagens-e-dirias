@@ -487,6 +487,13 @@ function supabaseConfigReady(config) {
   return Boolean(config.url && config.key);
 }
 
+function missingSupabaseEnv(config = loadSupabaseConfig()) {
+  return [
+    ...(config.url ? [] : ["SUPABASE_URL"]),
+    ...(config.key ? [] : ["SUPABASE_SERVICE_ROLE_KEY"]),
+  ];
+}
+
 function supabaseConfigRequired() {
   return (
     process.env.SUPABASE_LOCAL_FALLBACK === "false" ||
@@ -811,8 +818,9 @@ async function getDataStore() {
   }
 
   if (supabaseConfigRequired()) {
+    const missing = missingSupabaseEnv(supabaseConfig);
     throw new Error(
-      "Supabase nao configurado. Defina SUPABASE_URL e SUPABASE_SERVICE_ROLE_KEY para persistir os dados.",
+      `Supabase nao configurado. Variaveis ausentes: ${missing.join(", ")}.`,
     );
   }
 
