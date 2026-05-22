@@ -1419,8 +1419,9 @@ async function serveStatic(req, res, url) {
 }
 
 const server = http.createServer(async (req, res) => {
+  let url;
   try {
-    const url = new URL(req.url, `http://${req.headers.host}`);
+    url = new URL(req.url, `http://${req.headers.host}`);
     if (url.pathname.startsWith("/api/")) await handleApi(req, res, url);
     else await serveStatic(req, res, url);
   } catch (error) {
@@ -1432,6 +1433,15 @@ const server = http.createServer(async (req, res) => {
       return;
     }
     console.error(error);
+    if (url?.pathname === "/api/health") {
+      sendJson(res, 500, {
+        ok: false,
+        mode: "backend-api",
+        error: error.message || "Erro ao verificar backend.",
+        ...dataStoreInfo(),
+      });
+      return;
+    }
     sendJson(res, 500, { error: "Erro interno do servidor." });
   }
 });
