@@ -26,8 +26,17 @@ export function buildRequestObject(form, existingRequest) {
 
   const data = { ...form };
   Object.keys(data).forEach((key) => {
-    data[key] = normalizeText(data[key]);
+    if (typeof data[key] === "string") data[key] = normalizeText(data[key]);
   });
+
+  if (data.solicitarAluguelCarro !== "SIM") {
+    data.categoriaVeiculo = "";
+    data.tipoCambio = "";
+    data.numeroPortas = "";
+    data.arCondicionado = "";
+    data.localRetiradaDevolucao = "";
+    data.cnhPdf = null;
+  }
 
   data.id = existingRequest?.id || createRequestId();
   data.status = existingRequest?.status || "Recebida";

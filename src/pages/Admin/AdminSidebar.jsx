@@ -2,38 +2,39 @@ const navGroups = [
   [
     "Principal",
     [
-      ["dashboard", "Dashboard", "📊"],
-      ["solicitacoes", "Solicitações", "📝"],
+      ["dashboard", "Dashboard", "DB"],
+      ["solicitacoes", "Solicitacoes", "SO"],
     ],
   ],
   [
-    "Operacional",
+    "Operacao",
     [
-      ["passagens", "Passagens", "✈️"],
-      ["diarias", "Diárias", "🏨"],
-      ["alertas", "Alertas", "⚠️"],
-      ["alteracoes", "Alterações", "A"],
+      ["passagens", "Passagens", "PA"],
+      ["diarias", "Diarias", "DI"],
+      ["alertas", "Alertas", "AL"],
+      ["alteracoes", "Alteracoes", "AT"],
     ],
   ],
   [
-    "Gestão",
-    [["financeiro", "Financeiro", "💰"]],
+    "Gestao",
+    [["financeiro", "Financeiro", "FI"]],
   ],
 ];
 
 export function AdminSidebar({ activeTab, onTab, onExport, onLogout }) {
   return (
-    <aside className="dashboard-sidebar" aria-label="Menu administrativo">
-      <div className="sidebar-logo">
+    <aside className="dashboard-sidebar modern-sidebar" aria-label="Menu administrativo">
+      <div className="sidebar-logo modern-sidebar-brand">
+        <span className="brand-mark">N</span>
         <span>
-          Admin
-          <small>NUGB</small>
+          NUGB
+          <small>Travel Ops</small>
         </span>
       </div>
 
-      <nav className="sidebar-nav">
+      <nav className="sidebar-nav modern-sidebar-nav">
         {navGroups.map(([groupLabel, items]) => (
-          <div className="sidebar-group" key={groupLabel}>
+          <div className="sidebar-group modern-sidebar-group" key={groupLabel}>
             <p className="sidebar-group-title">{groupLabel}</p>
             {items.map(([tab, label, icon]) => (
               <button
@@ -49,18 +50,17 @@ export function AdminSidebar({ activeTab, onTab, onExport, onLogout }) {
           </div>
         ))}
 
-        <div className="sidebar-group sidebar-group-actions">
-          <p className="sidebar-group-title">Gestão</p>
-          <button type="button" className="sidebar-action-button" onClick={onExport}>
-            <span className="sidebar-nav-icon">📄</span>
-            <span>Exportar Excel</span>
-          </button>
+        <div className="modern-sidebar-card">
+          <span>Banco conectado</span>
+          <strong>Supabase</strong>
+          <small>API, frontend e storage no mesmo fluxo.</small>
+          <button type="button" onClick={onExport}>Exportar Excel</button>
         </div>
 
-        <div className="sidebar-group sidebar-group-actions">
+        <div className="sidebar-group modern-sidebar-group modern-account-group">
           <p className="sidebar-group-title">Conta</p>
           <button type="button" className="sidebar-action-button sidebar-logout" onClick={onLogout}>
-            <span className="sidebar-nav-icon">🔒</span>
+            <span className="sidebar-nav-icon">SA</span>
             <span>Sair</span>
           </button>
         </div>

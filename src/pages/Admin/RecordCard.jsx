@@ -48,6 +48,18 @@ const recordGroups = [
       "valorMaximoDiaria",
     ],
   ],
+  [
+    "05. Aluguel de carro",
+    [
+      "solicitarAluguelCarro",
+      "categoriaVeiculo",
+      "tipoCambio",
+      "numeroPortas",
+      "arCondicionado",
+      "localRetiradaDevolucao",
+      "cnhPdf",
+    ],
+  ],
 ];
 
 const formFieldCount = recordGroups.reduce((total, [, fields]) => total + fields.length, 0);

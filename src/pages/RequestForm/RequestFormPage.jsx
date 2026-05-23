@@ -54,6 +54,15 @@ const PROGRESS_QUESTIONS = [
 ];
 
 const TOTAL_FORM_FIELDS = Object.keys(blankForm).length;
+const CNH_PDF_MAX_BYTES = 700 * 1024;
+const carRentalFields = [
+  "categoriaVeiculo",
+  "tipoCambio",
+  "numeroPortas",
+  "arCondicionado",
+  "localRetiradaDevolucao",
+  "cnhPdf",
+];
 
 function digitsOnly(value) {
   return String(value || "").replace(/\D/g, "");
@@ -153,6 +162,29 @@ function validateForm(form) {
     errors.push("Informe o valor máximo da diária.");
   }
 
+  if (form.solicitarAluguelCarro === "SIM") {
+    [
+      ["categoriaVeiculo", "categoria do veiculo"],
+      ["tipoCambio", "tipo de cambio"],
+      ["numeroPortas", "numero de portas"],
+      ["arCondicionado", "ar-condicionado"],
+      ["localRetiradaDevolucao", "local de retirada e devolucao"],
+    ].forEach(([field, label]) => {
+      if (!String(form[field] || "").trim()) {
+        errors.push(`Informe ${label} para aluguel de carro.`);
+      }
+    });
+  }
+
+  if (form.cnhPdf) {
+    if (form.cnhPdf.type !== "application/pdf") {
+      errors.push("A copia da CNH precisa estar em PDF.");
+    }
+    if (Number(form.cnhPdf.size || 0) > CNH_PDF_MAX_BYTES) {
+      errors.push("A copia da CNH deve ter no maximo 700 KB.");
+    }
+  }
+
   return errors;
 }
 
@@ -189,11 +221,47 @@ export function RequestFormPage({ onBack, onConsult }) {
       if (name === "necessarioValorMaximoDiaria" && value !== "SIM") {
         next.valorMaximoDiaria = "";
       }
+      if (name === "solicitarAluguelCarro" && value !== "SIM") {
+        carRentalFields.forEach((field) => {
+          next[field] = field === "cnhPdf" ? null : "";
+        });
+      }
       if (name === "valorMaximoDiaria") {
         next.valorMaximoDiaria = formatCurrencyInput(value);
       }
       return next;
     });
+  }
+
+  async function setCnhFile(file) {
+    if (!file) {
+      setField("cnhPdf", null);
+      return;
+    }
+    if (file.type !== "application/pdf") {
+      setMessage({ type: "error", text: "A copia da CNH precisa estar em PDF." });
+      return;
+    }
+    if (file.size > CNH_PDF_MAX_BYTES) {
+      setMessage({ type: "error", text: "A copia da CNH deve ter no maximo 700 KB." });
+      return;
+    }
+
+    const dataUrl = await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = () => reject(new Error("Nao foi possivel ler o PDF da CNH."));
+      reader.readAsDataURL(file);
+    });
+
+    setField("cnhPdf", {
+      name: file.name,
+      size: file.size,
+      type: file.type,
+      dataUrl,
+      uploadedAt: new Date().toISOString(),
+    });
+    setMessage(null);
   }
 
   const loadForEditById = useCallback(async (id) => {
@@ -313,6 +381,7 @@ export function RequestFormPage({ onBack, onConsult }) {
         <span>Projeto</span>
         <span>Viajante</span>
         <span>Viagem</span>
+        <span>Carro</span>
       </div>
 
       <form onSubmit={submit}>
@@ -603,6 +672,90 @@ export function RequestFormPage({ onBack, onConsult }) {
               />
             </div>
           </div>
+        </FormSection>
+
+        <FormSection number="05" title="Aluguel de carro" accent>
+          <Select
+            label="Solicitar aluguel de carro?"
+            name="solicitarAluguelCarro"
+            value={form.solicitarAluguelCarro}
+            setField={setField}
+            options={["SIM", "NAO"]}
+          />
+          {form.solicitarAluguelCarro === "SIM" && (
+            <>
+              <Select
+                label="Categoria do veiculo"
+                name="categoriaVeiculo"
+                value={form.categoriaVeiculo}
+                setField={setField}
+                options={[
+                  "Compacto",
+                  "Economico",
+                  "Especial",
+                  "Intermediario",
+                  "Minivan",
+                  "Superior",
+                ]}
+                required
+              />
+              <Select
+                label="Tipo de cambio"
+                name="tipoCambio"
+                value={form.tipoCambio}
+                setField={setField}
+                options={["Manual", "Automatico"]}
+                required
+              />
+              <Select
+                label="Numero de portas"
+                name="numeroPortas"
+                value={form.numeroPortas}
+                setField={setField}
+                options={["2", "4"]}
+                required
+              />
+              <Select
+                label="Ar-condicionado"
+                name="arCondicionado"
+                value={form.arCondicionado}
+                setField={setField}
+                options={["SIM", "NAO"]}
+                required
+              />
+              <Input
+                full
+                label="Local de retirada e devolucao"
+                name="localRetiradaDevolucao"
+                value={form.localRetiradaDevolucao}
+                setField={setField}
+                required
+              />
+              <div className="form-group full">
+                <label htmlFor="cnhPdf">Copia da CNH em PDF</label>
+                <input
+                  id="cnhPdf"
+                  name="cnhPdf"
+                  type="file"
+                  accept="application/pdf"
+                  onChange={(event) => void setCnhFile(event.target.files?.[0])}
+                />
+                <small className="field-note">
+                  Opcional. Envie PDF com ate 700 KB.
+                  {form.cnhPdf ? ` Arquivo: ${form.cnhPdf.name}` : ""}
+                </small>
+                {form.cnhPdf && (
+                  <button
+                    type="button"
+                    className="btn btn-ghost"
+                    onClick={() => setField("cnhPdf", null)}
+                  >
+                    Remover CNH
+                  </button>
+                )}
+              </div>
+            </>
+          )}
         </FormSection>
 
         <datalist id="projectOptions">

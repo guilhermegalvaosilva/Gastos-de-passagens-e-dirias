@@ -58,6 +58,18 @@ const pdfFields = [
       ["26. Qual o valor máximo para diária total", "valorMaximoDiaria"],
     ],
   ],
+  [
+    "05. Aluguel de Carro",
+    [
+      ["27. Solicitar aluguel de carro?", "solicitarAluguelCarro"],
+      ["28. Categoria do veiculo", "categoriaVeiculo"],
+      ["29. Tipo de cambio", "tipoCambio"],
+      ["30. Numero de portas", "numeroPortas"],
+      ["31. Ar-condicionado", "arCondicionado"],
+      ["32. Local de retirada e devolucao", "localRetiradaDevolucao"],
+      ["33. Copia da CNH em PDF", "cnhPdf"],
+    ],
+  ],
 ];
 
 function latinText(value) {

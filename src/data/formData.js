@@ -195,6 +195,13 @@ export const requestFields = [
   "horarioVolta",
   "necessarioValorMaximoDiaria",
   "valorMaximoDiaria",
+  "solicitarAluguelCarro",
+  "categoriaVeiculo",
+  "tipoCambio",
+  "numeroPortas",
+  "arCondicionado",
+  "localRetiradaDevolucao",
+  "cnhPdf",
 ];
 
 export const labels = {
@@ -226,6 +233,13 @@ export const labels = {
   horarioVolta: "Horário de volta",
   necessarioValorMaximoDiaria: "Necessário valor máximo para diária",
   valorMaximoDiaria: "Valor máximo da diária",
+  solicitarAluguelCarro: "Solicitar aluguel de carro",
+  categoriaVeiculo: "Categoria do veiculo",
+  tipoCambio: "Tipo de cambio",
+  numeroPortas: "Numero de portas",
+  arCondicionado: "Ar-condicionado",
+  localRetiradaDevolucao: "Local de retirada e devolucao",
+  cnhPdf: "CNH em PDF",
 };
 
 export const auditColumns = [
@@ -267,5 +281,12 @@ export const blankForm = {
   horarioVolta: "",
   necessarioValorMaximoDiaria: "",
   valorMaximoDiaria: "",
+  solicitarAluguelCarro: "",
+  categoriaVeiculo: "",
+  tipoCambio: "",
+  numeroPortas: "",
+  arCondicionado: "",
+  localRetiradaDevolucao: "",
+  cnhPdf: null,
 };
 

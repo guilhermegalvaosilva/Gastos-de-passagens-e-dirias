@@ -1,0 +1,549 @@
+.admin-v2 {
+  --v2-bg: #e9e9ec;
+  --v2-paper: #ffffff;
+  --v2-ink: #111113;
+  --v2-muted: #737780;
+  --v2-line: #d9d9de;
+  --v2-soft: #f5f5f6;
+  --v2-dark: #111113;
+  --v2-green: #15803d;
+  min-height: calc(100vh - 96px);
+}
+
+main:has(.admin-v2) {
+  width: min(1520px, calc(100vw - 24px)) !important;
+  margin-top: 10px !important;
+}
+
+.admin-v2,
+.admin-v2 * {
+  letter-spacing: 0 !important;
+}
+
+.admin-v2 .modern-shell {
+  display: grid !important;
+  grid-template-columns: 196px minmax(0, 1fr) !important;
+  min-height: calc(100vh - 118px) !important;
+  overflow: visible !important;
+  border: 0 !important;
+  border-radius: 10px !important;
+  background: var(--v2-bg) !important;
+  box-shadow: none !important;
+}
+
+.admin-v2 .modern-sidebar {
+  position: sticky !important;
+  top: 10px !important;
+  width: 196px !important;
+  min-height: auto !important;
+  max-height: none !important;
+  height: fit-content !important;
+  overflow: visible !important;
+  padding: 14px 12px !important;
+  border: 0 !important;
+  border-right: 1px solid var(--v2-line) !important;
+  background: #fbfbfc !important;
+  color: var(--v2-ink) !important;
+}
+
+.admin-v2 .modern-sidebar,
+.admin-v2 .modern-sidebar * {
+  scrollbar-width: none;
+}
+
+.admin-v2 .modern-sidebar::-webkit-scrollbar,
+.admin-v2 .modern-sidebar *::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+.admin-v2 .modern-sidebar-brand {
+  display: grid !important;
+  grid-template-columns: 34px minmax(0, 1fr);
+  gap: 9px;
+  align-items: center;
+  min-height: 40px !important;
+  margin: 0 0 14px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  color: var(--v2-ink) !important;
+  font-size: 17px !important;
+  font-weight: 900 !important;
+}
+
+.admin-v2 .modern-sidebar-brand::after {
+  display: none !important;
+}
+
+.admin-v2 .brand-mark {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  background: var(--v2-dark);
+  color: #fff;
+  font-size: 16px;
+}
+
+.admin-v2 .modern-sidebar-brand small {
+  display: block;
+  margin-top: -3px;
+  color: var(--v2-muted) !important;
+  font-size: 10px !important;
+  font-weight: 800 !important;
+  text-transform: none !important;
+}
+
+.admin-v2 .modern-sidebar-nav {
+  display: grid !important;
+  gap: 6px !important;
+  height: auto;
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+}
+
+.admin-v2 .modern-sidebar-group {
+  display: grid;
+  gap: 2px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.admin-v2 .sidebar-group-title {
+  margin: 12px 0 4px !important;
+  padding: 0 8px !important;
+  color: #989aa1 !important;
+  font-size: 9px !important;
+  font-weight: 900 !important;
+  text-transform: uppercase !important;
+}
+
+.admin-v2 .modern-sidebar-nav button {
+  justify-content: flex-start !important;
+  width: 100% !important;
+  min-height: 36px !important;
+  padding: 6px 8px !important;
+  border: 0 !important;
+  border-radius: 8px !important;
+  background: transparent !important;
+  color: #454851 !important;
+  box-shadow: none !important;
+  font-size: 12px !important;
+  font-weight: 800 !important;
+  text-align: left !important;
+  transform: none !important;
+}
+
+.admin-v2 .modern-sidebar-nav button:hover,
+.admin-v2 .modern-sidebar-nav button.active {
+  background: #111113 !important;
+  color: #fff !important;
+}
+
+.admin-v2 .sidebar-nav-icon {
+  display: grid !important;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 23px !important;
+  height: 23px !important;
+  border-radius: 7px !important;
+  background: #ededf0 !important;
+  color: #555962 !important;
+  font-size: 9px !important;
+  font-weight: 900 !important;
+}
+
+.admin-v2 .modern-sidebar-nav button:hover .sidebar-nav-icon,
+.admin-v2 .modern-sidebar-nav button.active .sidebar-nav-icon {
+  background: rgba(255, 255, 255, 0.15) !important;
+  color: #fff !important;
+}
+
+.admin-v2 .modern-sidebar-card {
+  display: grid;
+  gap: 3px;
+  margin-top: 12px;
+  padding: 10px 8px 0;
+  border: 0;
+  border-top: 1px solid var(--v2-line);
+  border-radius: 0;
+  background: transparent;
+  color: var(--v2-ink);
+}
+
+.admin-v2 .modern-sidebar-card span,
+.admin-v2 .modern-sidebar-card small {
+  color: var(--v2-muted) !important;
+  font-size: 10px;
+  line-height: 1.35;
+}
+
+.admin-v2 .modern-sidebar-card strong {
+  color: var(--v2-ink) !important;
+  font-size: 14px;
+  line-height: 1;
+}
+
+.admin-v2 .modern-sidebar-card button {
+  min-height: 32px !important;
+  margin-top: 7px;
+  border: 1px solid var(--v2-dark) !important;
+  border-radius: 8px !important;
+  background: var(--v2-dark) !important;
+  color: #fff !important;
+  font-size: 11px !important;
+}
+
+.admin-v2 .modern-account-group {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--v2-line);
+}
+
+.admin-v2 .modern-content {
+  display: grid !important;
+  align-content: start;
+  gap: 14px !important;
+  min-width: 0;
+  padding: 16px !important;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.45), transparent 260px),
+    var(--v2-bg) !important;
+}
+
+.admin-v2 .modern-command {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) auto !important;
+  align-items: start !important;
+  gap: 18px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.admin-v2 .modern-title .section-kicker {
+  color: var(--v2-muted) !important;
+  font-size: 11px !important;
+  font-weight: 900 !important;
+}
+
+.admin-v2 .modern-title h2 {
+  margin: 0 !important;
+  color: var(--v2-ink) !important;
+  font-size: 24px !important;
+  font-weight: 900 !important;
+  line-height: 1.05 !important;
+}
+
+.admin-v2 .modern-title .subtitle {
+  max-width: 680px !important;
+  margin-top: 5px !important;
+  color: var(--v2-muted) !important;
+  font-size: 13px !important;
+}
+
+.admin-v2 .modern-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.admin-v2 .modern-search {
+  display: grid;
+  min-width: 190px;
+  min-height: 42px;
+  padding: 7px 12px;
+  border: 1px solid var(--v2-line);
+  border-radius: 999px;
+  background: #fff;
+}
+
+.admin-v2 .modern-search span {
+  color: var(--v2-muted);
+  font-size: 10px;
+  font-weight: 900;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.admin-v2 .modern-search strong {
+  max-width: 150px;
+  overflow: hidden;
+  color: var(--v2-ink);
+  font-size: 13px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.admin-v2 .modern-toolbar button,
+.admin-v2 .dashboard-actions button {
+  min-height: 38px !important;
+  padding: 8px 13px !important;
+  border: 1px solid var(--v2-line) !important;
+  border-radius: 999px !important;
+  background: #fff !important;
+  color: var(--v2-ink) !important;
+  box-shadow: none !important;
+  font-size: 12px !important;
+  font-weight: 900 !important;
+}
+
+.admin-v2 .modern-toolbar button:hover,
+.admin-v2 .modern-toolbar .btn-ghost {
+  border-color: var(--v2-dark) !important;
+  background: var(--v2-dark) !important;
+  color: #fff !important;
+}
+
+.admin-v2 .modern-overview {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.admin-v2 .modern-kpi {
+  display: grid;
+  align-content: space-between;
+  min-height: 92px;
+  padding: 12px;
+  border: 1px solid var(--v2-line);
+  border-radius: 10px;
+  background: #fff;
+}
+
+.admin-v2 .modern-kpi.is-dark {
+  border-color: var(--v2-dark);
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.08), transparent 52%),
+    var(--v2-dark);
+  color: #fff;
+}
+
+.admin-v2 .modern-kpi span {
+  color: var(--v2-muted);
+  font-size: 12px;
+  font-weight: 850;
+}
+
+.admin-v2 .modern-kpi strong {
+  color: var(--v2-ink);
+  font-size: 25px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.admin-v2 .modern-kpi small {
+  color: var(--v2-muted);
+  font-size: 10px;
+}
+
+.admin-v2 .modern-kpi.is-dark span,
+.admin-v2 .modern-kpi.is-dark small,
+.admin-v2 .modern-kpi.is-dark strong {
+  color: #fff !important;
+}
+
+.admin-v2 .modern-status-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 9px 12px;
+  border: 1px solid var(--v2-line);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.72);
+  color: var(--v2-muted);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.admin-v2 .modern-status-row span:first-child {
+  color: var(--v2-green);
+}
+
+.admin-v2 .modern-panel-surface {
+  min-width: 0;
+}
+
+.admin-v2 .dashboard-overview-panel,
+.admin-v2 .finance-dashboard-card,
+.admin-v2 .flights-dashboard-card,
+.admin-v2 .notification-panel,
+.admin-v2 .requests-workspace {
+  gap: 14px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.admin-v2 .dashboard-card,
+.admin-v2 .admin-table-panel,
+.admin-v2 .chart-card,
+.admin-v2 .stat-card,
+.admin-v2 .dashboard-metric,
+.admin-v2 .flight-metric,
+.admin-v2 .finance-metric,
+.admin-v2 .notification-metric,
+.admin-v2 .record-card {
+  border: 1px solid var(--v2-line) !important;
+  border-radius: 10px !important;
+  background: #fff !important;
+  box-shadow: none !important;
+}
+
+.admin-v2 .dashboard-hero,
+.admin-v2 .finance-hero,
+.admin-v2 .flights-hero,
+.admin-v2 .notification-hero,
+.admin-v2 .requests-heading,
+.admin-v2 .requests-control-bar {
+  border: 1px solid var(--v2-line) !important;
+  border-radius: 10px !important;
+  background: #fff !important;
+}
+
+.admin-v2 .dashboard-hero h3,
+.admin-v2 .finance-hero h3,
+.admin-v2 .flights-hero h3,
+.admin-v2 .notification-hero h3,
+.admin-v2 .chart-heading h4 {
+  color: var(--v2-ink) !important;
+  font-weight: 900 !important;
+}
+
+.admin-v2 .dashboard-hero-number,
+.admin-v2 .finance-hero-value,
+.admin-v2 .flight-hero-metric,
+.admin-v2 .notification-latest,
+.admin-v2 .stat-card:first-child,
+.admin-v2 .finance-metric.highlight,
+.admin-v2 .flight-metric:first-child {
+  border-color: var(--v2-dark) !important;
+  background: var(--v2-dark) !important;
+  color: #fff !important;
+}
+
+.admin-v2 .dashboard-hero-number *,
+.admin-v2 .finance-hero-value *,
+.admin-v2 .flight-hero-metric *,
+.admin-v2 .notification-latest *,
+.admin-v2 .stat-card:first-child *,
+.admin-v2 .finance-metric.highlight *,
+.admin-v2 .flight-metric:first-child * {
+  color: #fff !important;
+}
+
+.admin-v2 .dashboard-metric-grid,
+.admin-v2 .flight-metric-grid,
+.admin-v2 .finance-metric-grid,
+.admin-v2 .notification-metric-grid {
+  grid-template-columns: repeat(4, minmax(150px, 1fr)) !important;
+  gap: 12px !important;
+}
+
+.admin-v2 .dashboard-bar-track,
+.admin-v2 .operational-summary-row > div:nth-child(2) {
+  border-radius: 999px !important;
+  background: #ededf0 !important;
+}
+
+.admin-v2 .dashboard-bar-track span,
+.admin-v2 .operational-summary-row > div:nth-child(2) span,
+.admin-v2 .dashboard-window-column > div span,
+.admin-v2 .finance-column > div span,
+.admin-v2 .flight-month-column > div span {
+  background: linear-gradient(180deg, #8c8f98, #171719) !important;
+}
+
+.admin-v2 table th {
+  background: #f4f4f5 !important;
+  color: var(--v2-muted) !important;
+  font-size: 11px !important;
+}
+
+.admin-v2 table td {
+  color: var(--v2-ink) !important;
+}
+
+@media (max-width: 1180px) {
+  .admin-v2 .modern-shell {
+    grid-template-columns: 1fr !important;
+  }
+
+  .admin-v2 .modern-sidebar {
+    position: static !important;
+    width: 100% !important;
+    min-height: auto !important;
+    max-height: none !important;
+  }
+
+  .admin-v2 .modern-sidebar-nav {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    height: auto;
+  }
+
+  .admin-v2 .modern-sidebar-card {
+    display: none;
+  }
+
+  .admin-v2 .modern-overview {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 900px) {
+  .admin-v2 .modern-command {
+    grid-template-columns: 1fr !important;
+  }
+
+  .admin-v2 .modern-toolbar,
+  .admin-v2 .modern-status-row {
+    flex-wrap: wrap;
+    justify-content: stretch;
+  }
+
+  .admin-v2 .modern-toolbar > *,
+  .admin-v2 .modern-status-row > * {
+    flex: 1 1 auto;
+  }
+
+  .admin-v2 .modern-overview,
+  .admin-v2 .dashboard-metric-grid,
+  .admin-v2 .flight-metric-grid,
+  .admin-v2 .finance-metric-grid,
+  .admin-v2 .notification-metric-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (max-width: 620px) {
+  main:has(.admin-v2) {
+    width: min(100vw - 12px, 1520px) !important;
+  }
+
+  .admin-v2 .modern-content,
+  .admin-v2 .modern-sidebar {
+    padding: 12px !important;
+  }
+
+  .admin-v2 .modern-sidebar-nav,
+  .admin-v2 .modern-overview,
+  .admin-v2 .dashboard-metric-grid,
+  .admin-v2 .flight-metric-grid,
+  .admin-v2 .finance-metric-grid,
+  .admin-v2 .notification-metric-grid {
+    grid-template-columns: 1fr !important;
+  }
+}

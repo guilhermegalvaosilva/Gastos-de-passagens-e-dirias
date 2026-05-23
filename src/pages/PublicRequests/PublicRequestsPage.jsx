@@ -55,6 +55,18 @@ const requestSections = [
       "valorMaximoDiaria",
     ],
   ],
+  [
+    "05. Aluguel de carro",
+    [
+      "solicitarAluguelCarro",
+      "categoriaVeiculo",
+      "tipoCambio",
+      "numeroPortas",
+      "arCondicionado",
+      "localRetiradaDevolucao",
+      "cnhPdf",
+    ],
+  ],
 ];
 
 const REQUESTS_ENDPOINT = "/public/solicitacoes?sort=createdAt&order=desc";

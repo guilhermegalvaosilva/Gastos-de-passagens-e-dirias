@@ -1,9 +1,10 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { Message } from "../../components/common/Message";
 import { STORAGE_KEYS } from "../../config/storageKeys";
 import { apiRequest, logoutAdmin, savedSession, validateSession } from "../../services/api";
 import { exportRequestsWorkbook } from "../../utils/excel";
+import { normalizedFilterText } from "../../utils/formatters";
 import { AdminSidebar } from "./AdminSidebar";
 import { AuditPanel } from "./AuditPanel";
 import { AlertsPanel } from "./AlertsPanel";
@@ -12,6 +13,30 @@ import { FinancePanel } from "./FinancePanel";
 import { FlightsPanel } from "./FlightsPanel";
 import { NotificationsPanel } from "./NotificationsPanel";
 import { RequestsPanel } from "./RequestsPanel";
+import "./admin-modern.css";
+
+const tabTitles = {
+  dashboard: "Command center",
+  solicitacoes: "Solicitacoes",
+  alertas: "Alertas",
+  alteracoes: "Alteracoes",
+  notificacoes: "Notificacoes",
+  financeiro: "Financeiro",
+  passagens: "Passagens",
+  diarias: "Diarias",
+};
+
+function isOpenRequest(item) {
+  return ["recebida", "em analise", "pendente"].includes(
+    normalizedFilterText(item.status || "Recebida"),
+  );
+}
+
+function isToday(value) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return false;
+  return date.toDateString() === new Date().toDateString();
+}
 
 export function AdminPage({ onBack }) {
   const [activeTab, setActiveTab] = useState(
@@ -22,6 +47,16 @@ export function AdminPage({ onBack }) {
   const [message, setMessage] = useState(null);
   const [loading, setLoading] = useState(true);
   const [lastUpdatedAt, setLastUpdatedAt] = useState(null);
+
+  const metrics = useMemo(() => {
+    const open = requests.filter(isOpenRequest).length;
+    const today = requests.filter((item) => isToday(item.createdAtIso || item.createdAt)).length;
+    const passage = requests.filter((item) =>
+      normalizedFilterText(item.necessidade).includes("passagens"),
+    ).length;
+    const auditsToday = auditLogs.filter((item) => isToday(item.dataAlteracao)).length;
+    return { open, today, passage, auditsToday };
+  }, [auditLogs, requests]);
 
   const loadData = useCallback(async ({ silent = false } = {}) => {
     try {
@@ -85,73 +120,96 @@ export function AdminPage({ onBack }) {
   }
 
   return (
-    <section className="admin-dashboard">
-      <div className="dashboard-shell">
+    <section className="admin-dashboard admin-v2">
+      <div className="dashboard-shell modern-shell">
         <AdminSidebar
           activeTab={activeTab}
           onTab={setTab}
           onExport={exportWorkbook}
           onLogout={logout}
         />
-        <div className="dashboard-content">
-          <div className="dashboard-header admin-command-bar">
-            <div className="dashboard-title-block">
-              <span className="section-kicker">Visão administrativa</span>
-              <h2>Painel administrativo</h2>
+        <div className="dashboard-content modern-content">
+          <header className="dashboard-header admin-command-bar modern-command">
+            <div className="dashboard-title-block modern-title">
+              <span className="section-kicker">Painel administrativo</span>
+              <h2>{tabTitles[activeTab] || "Operacao"}</h2>
               <p className="subtitle">
-                Operação consolidada, filtros vivos e documentos prontos para
-                alterações, financeiro e logística.
+                Controle executivo para viagens, diarias, financeiro e auditoria.
               </p>
             </div>
-            <div className="dashboard-header-meta">
-              <div className="admin-session-row" aria-label="Sessão administrativa">
-                <div className="admin-session-card">
-                  <span className="status-dot" />
-                  <div>
-                    <small>Usuário</small>
-                    <strong>{savedSession().login || "admin"}</strong>
-                  </div>
-                </div>
-                <div className="admin-session-card">
-                  <span className="status-dot" />
-                  <div>
-                    <small>Atualizado</small>
-                    <strong>
-                      {lastUpdatedAt
-                        ? lastUpdatedAt.toLocaleTimeString("pt-BR", {
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          })
-                        : "..."}
-                    </strong>
-                  </div>
-                </div>
+
+            <div className="modern-toolbar" aria-label="Acoes do painel">
+              <div className="modern-search" aria-label="Resumo da sessao">
+                <span>Usuario</span>
+                <strong>{savedSession().login || "admin"}</strong>
               </div>
-              <div className="dashboard-actions">
-                <button type="button" onClick={() => loadData()}>
-                  Atualizar
-                </button>
-                <button type="button" onClick={exportWorkbook}>
-                  Exportar Excel
-                </button>
-                <button type="button" className="btn-ghost" onClick={logout}>
-                  Sair
-                </button>
-              </div>
+              <button type="button" onClick={() => loadData()}>
+                Atualizar
+              </button>
+              <button type="button" onClick={exportWorkbook}>
+                Exportar
+              </button>
+              <button type="button" className="btn-ghost" onClick={logout}>
+                Sair
+              </button>
             </div>
+          </header>
+
+          <section className="modern-overview" aria-label="Indicadores rapidos">
+            <article className="modern-kpi is-dark">
+              <span>Total de solicitacoes</span>
+              <strong>{requests.length}</strong>
+              <small>Base carregada pela API</small>
+            </article>
+            <article className="modern-kpi">
+              <span>Fila aberta</span>
+              <strong>{metrics.open}</strong>
+              <small>Recebida, analise ou pendente</small>
+            </article>
+            <article className="modern-kpi">
+              <span>Entradas hoje</span>
+              <strong>{metrics.today}</strong>
+              <small>Novos pedidos no dia</small>
+            </article>
+            <article className="modern-kpi">
+              <span>Passagens</span>
+              <strong>{metrics.passage}</strong>
+              <small>Solicitacoes com voo</small>
+            </article>
+            <article className="modern-kpi">
+              <span>Auditoria hoje</span>
+              <strong>{metrics.auditsToday}</strong>
+              <small>Alteracoes registradas</small>
+            </article>
+          </section>
+
+          <div className="modern-status-row">
+            <span>API Supabase conectada</span>
+            <span>
+              Atualizado:{" "}
+              {lastUpdatedAt
+                ? lastUpdatedAt.toLocaleTimeString("pt-BR", {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })
+                : "..."}
+            </span>
           </div>
+
           <Message message={message} />
           {loading && <div className="empty-records">Carregando dados...</div>}
-          {activeTab === "dashboard" && <Dashboard requests={requests} />}
-          {activeTab === "solicitacoes" && (
-            <RequestsPanel rows={requests} onDelete={deleteRequest} />
-          )}
-          {activeTab === "alertas" && <AlertsPanel logs={auditLogs} />}
-          {activeTab === "alteracoes" && <AuditPanel logs={auditLogs} />}
-          {activeTab === "notificacoes" && <NotificationsPanel logs={auditLogs} />}
-          {activeTab === "financeiro" && <FinancePanel requests={requests} />}
-          {activeTab === "passagens" && <FlightsPanel requests={requests} />}
-          {activeTab === "diarias" && <FinancePanel requests={requests} />}
+          <div className="modern-panel-surface">
+            {activeTab === "dashboard" && <Dashboard requests={requests} />}
+            {activeTab === "solicitacoes" && (
+              <RequestsPanel rows={requests} onDelete={deleteRequest} />
+            )}
+            {activeTab === "alertas" && <AlertsPanel logs={auditLogs} />}
+            {activeTab === "alteracoes" && <AuditPanel logs={auditLogs} />}
+            {activeTab === "notificacoes" && <NotificationsPanel logs={auditLogs} />}
+            {activeTab === "financeiro" && <FinancePanel requests={requests} />}
+            {activeTab === "passagens" && <FlightsPanel requests={requests} />}
+            {activeTab === "diarias" && <FinancePanel requests={requests} />}
+          </div>
         </div>
       </div>
     </section>

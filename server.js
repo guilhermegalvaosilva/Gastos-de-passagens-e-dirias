@@ -68,7 +68,8 @@ const SUPABASE_TABLE_NAMES = {
 const SESSION_DURATION_MS = 8 * 60 * 60 * 1000;
 const DEFAULT_ADMIN_LOGIN = process.env.DEFAULT_ADMIN_LOGIN || "admin";
 const DEFAULT_ADMIN_PASSWORD = process.env.DEFAULT_ADMIN_PASSWORD || "123456";
-const MAX_BODY_SIZE_BYTES = 1024 * 1024;
+const MAX_BODY_SIZE_BYTES = 2 * 1024 * 1024;
+const CNH_PDF_MAX_BYTES = 700 * 1024;
 const LOGIN_RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000;
 const LOGIN_RATE_LIMIT_ATTEMPTS = 12;
 const FIRESTORE_TIMEOUT_MS = 8000;
@@ -236,9 +237,20 @@ function publicProject(project) {
   };
 }
 
+function publicAttachment(file) {
+  if (!file || typeof file !== "object") return null;
+  return {
+    name: file.name || "CNH.pdf",
+    size: file.size || 0,
+    type: file.type || "application/pdf",
+    uploadedAt: file.uploadedAt || "",
+  };
+}
+
 function publicRequest(row) {
   return {
     ...row,
+    cnhPdf: publicAttachment(row.cnhPdf),
     metaProjeto: visibleMetaProjeto(row.metaProjeto),
     projetoVinculado: publicProject(row.projetoVinculado),
   };
@@ -1039,6 +1051,35 @@ function validateRequestPayload(row) {
     errors.push("Informe o valor máximo da diária quando o campo 25 estiver marcado como SIM.");
   }
 
+  if (normalizedFilterText(row.solicitarAluguelCarro) === "sim") {
+    [
+      ["categoriaVeiculo", "categoria do veículo"],
+      ["tipoCambio", "tipo de câmbio"],
+      ["numeroPortas", "número de portas"],
+      ["arCondicionado", "ar-condicionado"],
+      ["localRetiradaDevolucao", "local de retirada e devolução"],
+    ].forEach(([field, label]) => {
+      if (!normalizeText(row[field])) {
+        errors.push(`Informe ${label} para aluguel de carro.`);
+      }
+    });
+
+    if (row.cnhPdf) {
+      if (row.cnhPdf.type !== "application/pdf") {
+        errors.push("A cópia da CNH precisa estar em PDF.");
+      }
+      if (Number(row.cnhPdf.size || 0) > CNH_PDF_MAX_BYTES) {
+        errors.push("A cópia da CNH deve ter no máximo 700 KB.");
+      }
+      if (
+        row.cnhPdf.dataUrl &&
+        !String(row.cnhPdf.dataUrl).startsWith("data:application/pdf;base64,")
+      ) {
+        errors.push("O arquivo da CNH precisa ser enviado em formato PDF válido.");
+      }
+    }
+  }
+
   if (errors.length) {
     throw new ApiError(422, "Revise os dados da solicitação.", errors);
   }
@@ -1047,8 +1088,15 @@ function validateRequestPayload(row) {
 function enrichRequestPayload(row, previous) {
   const now = new Date();
   const project = findLinkedProject(row.idFiotec);
+  const carRentalEnabled = normalizedFilterText(row.solicitarAluguelCarro) === "sim";
   return {
     ...row,
+    categoriaVeiculo: carRentalEnabled ? row.categoriaVeiculo : "",
+    tipoCambio: carRentalEnabled ? row.tipoCambio : "",
+    numeroPortas: carRentalEnabled ? row.numeroPortas : "",
+    arCondicionado: carRentalEnabled ? row.arCondicionado : "",
+    localRetiradaDevolucao: carRentalEnabled ? row.localRetiradaDevolucao : "",
+    cnhPdf: carRentalEnabled ? row.cnhPdf || null : null,
     status: normalizeStatus(row.status),
     createdAt: previous?.createdAt || row.createdAt || now.toISOString(),
     createdAtIso: previous?.createdAtIso || row.createdAtIso || row.createdAt || now.toISOString(),

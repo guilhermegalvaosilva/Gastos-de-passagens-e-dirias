@@ -40,6 +40,13 @@ export function createdAtDisplay(item) {
 export function displayValue(key, item) {
   if (key === "createdAt") return createdAtDisplay(item);
   if (key === "metaProjeto") return visibleMetaProjeto(item[key]) || "-";
+  if (key === "cnhPdf") {
+    const file = item?.cnhPdf;
+    if (!file || typeof file !== "object") return "-";
+    const size = Number(file.size || 0);
+    const sizeLabel = size ? ` (${Math.round(size / 1024)} KB)` : "";
+    return `${file.name || "CNH.pdf"}${sizeLabel}`;
+  }
   if (["dataEvento", "dataNascimento", "dataIda", "dataVolta"].includes(key)) {
     return formatDate(item[key]) || "-";
   }
