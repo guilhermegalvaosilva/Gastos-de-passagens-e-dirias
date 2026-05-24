@@ -45,26 +45,28 @@
 
 .form-step-nav {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 1px;
+  padding: 10px;
   border-bottom: 1px solid var(--border-light);
-  background: #fbfdff;
+  background: var(--border-light);
 }
 
 .form-step-nav span {
   min-height: 44px;
+  min-width: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-right: 1px solid var(--border-light);
-  color: var(--text-secondary);
+  gap: 8px;
+  padding: 8px 10px;
+  background: #fff;
+  color: var(--primary-dark);
   font-size: 12px;
   font-weight: 800;
-  letter-spacing: 0.04em;
+  letter-spacing: 0;
   text-transform: uppercase;
-}
-
-.form-step-nav span:last-child {
-  border-right: 0;
+  white-space: nowrap;
 }
 
 .form-card form {
@@ -198,7 +200,7 @@
   border: 1px solid var(--border);
   border-radius: 999px;
   background: #fff;
-  color: var(--primary);
+  color: #000;
   font-size: 12px;
   font-weight: 900;
 }

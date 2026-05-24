@@ -992,8 +992,8 @@ select:focus-visible {
 .form-section h3 span {
   border: 1px solid #000;
   border-radius: 0;
-  background: #000;
-  color: #fff;
+  background: #fff;
+  color: #000;
 }
 
 .accent-section {
@@ -1306,9 +1306,7 @@ select:focus,
   box-shadow: 0 0 0 2px #e5e5df;
 }
 
-.finance-total-card,
-.form-step-nav,
-.form-section h3 span {
+.finance-total-card {
   border-color: #202020;
   background: #202020;
   color: #fff;
@@ -1316,14 +1314,19 @@ select:focus,
 
 .finance-total-card span,
 .finance-total-card small,
-.finance-total-card strong,
-.form-step-nav span,
-.form-section h3 span {
+.finance-total-card strong {
   color: #fff;
 }
 
+.form-step-nav {
+  border-color: #d8d8d2;
+  background: #d8d8d2;
+}
+
 .form-step-nav span {
-  border-color: #4a4a4a;
+  border-color: transparent;
+  background: #fff;
+  color: #151515;
 }
 
 .form-actions {

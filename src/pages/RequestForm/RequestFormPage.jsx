@@ -378,10 +378,10 @@ export function RequestFormPage({ onBack, onConsult }) {
 
       <div className="form-step-nav" aria-label="Seções do formulário">
         <span>Evento</span>
+        <span>Carro</span>
         <span>Projeto</span>
         <span>Viajante</span>
         <span>Viagem</span>
-        <span>Carro</span>
       </div>
 
       <form onSubmit={submit}>
@@ -480,6 +480,90 @@ export function RequestFormPage({ onBack, onConsult }) {
             setField={setField}
             required
           />
+        </FormSection>
+
+        <FormSection number="05" title="Aluguel de carro" accent>
+          <Select
+            label="Solicitar aluguel de carro?"
+            name="solicitarAluguelCarro"
+            value={form.solicitarAluguelCarro}
+            setField={setField}
+            options={["SIM", "NAO"]}
+          />
+          {form.solicitarAluguelCarro === "SIM" && (
+            <>
+              <Select
+                label="Categoria do veiculo"
+                name="categoriaVeiculo"
+                value={form.categoriaVeiculo}
+                setField={setField}
+                options={[
+                  "Compacto",
+                  "Economico",
+                  "Especial",
+                  "Intermediario",
+                  "Minivan",
+                  "Superior",
+                ]}
+                required
+              />
+              <Select
+                label="Tipo de cambio"
+                name="tipoCambio"
+                value={form.tipoCambio}
+                setField={setField}
+                options={["Manual", "Automatico"]}
+                required
+              />
+              <Select
+                label="Numero de portas"
+                name="numeroPortas"
+                value={form.numeroPortas}
+                setField={setField}
+                options={["2", "4"]}
+                required
+              />
+              <Select
+                label="Ar-condicionado"
+                name="arCondicionado"
+                value={form.arCondicionado}
+                setField={setField}
+                options={["SIM", "NAO"]}
+                required
+              />
+              <Input
+                full
+                label="Local de retirada e devolucao"
+                name="localRetiradaDevolucao"
+                value={form.localRetiradaDevolucao}
+                setField={setField}
+                required
+              />
+              <div className="form-group full">
+                <label htmlFor="cnhPdf">Copia da CNH em PDF</label>
+                <input
+                  id="cnhPdf"
+                  name="cnhPdf"
+                  type="file"
+                  accept="application/pdf"
+                  onChange={(event) => void setCnhFile(event.target.files?.[0])}
+                />
+                <small className="field-note">
+                  Opcional. Envie PDF com ate 700 KB.
+                  {form.cnhPdf ? ` Arquivo: ${form.cnhPdf.name}` : ""}
+                </small>
+                {form.cnhPdf && (
+                  <button
+                    type="button"
+                    className="btn btn-ghost"
+                    onClick={() => setField("cnhPdf", null)}
+                  >
+                    Remover CNH
+                  </button>
+                )}
+              </div>
+            </>
+          )}
         </FormSection>
 
         <FormSection number="02" title="Projeto vinculado" accent>
@@ -672,90 +756,6 @@ export function RequestFormPage({ onBack, onConsult }) {
               />
             </div>
           </div>
-        </FormSection>
-
-        <FormSection number="05" title="Aluguel de carro" accent>
-          <Select
-            label="Solicitar aluguel de carro?"
-            name="solicitarAluguelCarro"
-            value={form.solicitarAluguelCarro}
-            setField={setField}
-            options={["SIM", "NAO"]}
-          />
-          {form.solicitarAluguelCarro === "SIM" && (
-            <>
-              <Select
-                label="Categoria do veiculo"
-                name="categoriaVeiculo"
-                value={form.categoriaVeiculo}
-                setField={setField}
-                options={[
-                  "Compacto",
-                  "Economico",
-                  "Especial",
-                  "Intermediario",
-                  "Minivan",
-                  "Superior",
-                ]}
-                required
-              />
-              <Select
-                label="Tipo de cambio"
-                name="tipoCambio"
-                value={form.tipoCambio}
-                setField={setField}
-                options={["Manual", "Automatico"]}
-                required
-              />
-              <Select
-                label="Numero de portas"
-                name="numeroPortas"
-                value={form.numeroPortas}
-                setField={setField}
-                options={["2", "4"]}
-                required
-              />
-              <Select
-                label="Ar-condicionado"
-                name="arCondicionado"
-                value={form.arCondicionado}
-                setField={setField}
-                options={["SIM", "NAO"]}
-                required
-              />
-              <Input
-                full
-                label="Local de retirada e devolucao"
-                name="localRetiradaDevolucao"
-                value={form.localRetiradaDevolucao}
-                setField={setField}
-                required
-              />
-              <div className="form-group full">
-                <label htmlFor="cnhPdf">Copia da CNH em PDF</label>
-                <input
-                  id="cnhPdf"
-                  name="cnhPdf"
-                  type="file"
-                  accept="application/pdf"
-                  onChange={(event) => void setCnhFile(event.target.files?.[0])}
-                />
-                <small className="field-note">
-                  Opcional. Envie PDF com ate 700 KB.
-                  {form.cnhPdf ? ` Arquivo: ${form.cnhPdf.name}` : ""}
-                </small>
-                {form.cnhPdf && (
-                  <button
-                    type="button"
-                    className="btn btn-ghost"
-                    onClick={() => setField("cnhPdf", null)}
-                  >
-                    Remover CNH
-                  </button>
-                )}
-              </div>
-            </>
-          )}
         </FormSection>
 
         <datalist id="projectOptions">
