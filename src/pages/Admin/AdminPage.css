@@ -1592,6 +1592,17 @@ main:has(.admin-dashboard) {
   content: "-";
 }
 
+.record-toggle-text {
+  width: auto;
+  min-width: 128px;
+  padding-inline: 14px;
+}
+
+.record-toggle-text::before,
+.record-card.expanded .record-toggle-text::before {
+  content: none;
+}
+
 .record-summary-strip {
   display: grid;
   grid-template-columns: minmax(150px, 0.85fr) minmax(220px, 1.4fr) minmax(96px, 0.55fr) minmax(100px, 0.55fr);

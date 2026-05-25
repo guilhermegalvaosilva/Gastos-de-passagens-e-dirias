@@ -88,8 +88,13 @@ export function RecordCard({ item, onDelete }) {
           </small>
         </div>
         <div className="record-actions">
-          <button type="button" className="btn-secondary" onClick={() => generatePDF(item)}>
-            PDF
+          <button
+            type="button"
+            className="btn-secondary"
+            aria-label={`Baixar PDF da solicitação ${item.id}`}
+            onClick={() => generatePDF(item)}
+          >
+            Baixar PDF
           </button>
           <button
             type="button"
@@ -104,11 +109,13 @@ export function RecordCard({ item, onDelete }) {
           </button>
           <button
             type="button"
-            className="record-toggle"
+            className="record-toggle record-toggle-text"
             aria-label={expanded ? "Recolher detalhes" : "Ver detalhes"}
             aria-expanded={expanded}
             onClick={() => setExpanded((current) => !current)}
-          />
+          >
+            {expanded ? "Ocultar detalhes" : "Ver detalhes"}
+          </button>
         </div>
       </div>
 

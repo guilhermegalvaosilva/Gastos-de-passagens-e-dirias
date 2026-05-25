@@ -35,6 +35,21 @@
   margin-bottom: 0;
 }
 
+.public-record-actions .btn-secondary,
+.public-record-actions .record-toggle-text {
+  min-width: 116px;
+  padding-inline: 14px;
+}
+
+.public-record-actions .record-toggle-text {
+  width: auto;
+  min-height: 42px;
+}
+
+.public-record-actions .record-toggle-text::before {
+  content: none;
+}
+
 .public-section-tabs {
   display: flex;
   gap: 10px;
