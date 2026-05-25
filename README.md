@@ -112,6 +112,13 @@ Name: VITE_API_BASE
 Value: https://SEU-BACKEND.onrender.com/api
 ```
 
+Se o GitHub nao aceitar underline no nome da variavel, use:
+
+```text
+Name: VITEAPIBASE
+Value: https://SEU-BACKEND.onrender.com/api
+```
+
 Depois rode novamente o workflow `Deploy GitHub Pages` ou faca um novo push na
 branch `main`.
 
