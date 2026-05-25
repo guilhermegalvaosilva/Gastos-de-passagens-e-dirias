@@ -16,69 +16,59 @@ import {
 } from "../../utils/formatters";
 import { generatePDF } from "../../utils/pdf";
 
-const requestSections = [
-  [
-    "01. Cadastro do evento",
-    [
-      "descricaoSolicitacao",
-      "nomeEvento",
-      "dataEvento",
-      "localEvento",
-      "justificativa",
-    ],
-  ],
-  ["02. Projeto vinculado", ["idFiotec", "metaProjeto", "coordenador", "setorFiocruz"]],
-  [
-    "03. Dados do viajante",
-    [
-      "nomeCompleto",
-      "dataNascimento",
-      "cargoFuncao",
-      "cpf",
-      "banco",
-      "agencia",
-      "contaCorrente",
-    ],
-  ],
-  [
-    "04. Dados da viagem",
-    [
-      "necessidade",
-      "localOrigem",
-      "dataIda",
-      "horarioIda",
-      "vooIda",
-      "localDestino",
-      "dataVolta",
-      "horarioVolta",
-      "necessarioValorMaximoDiaria",
-      "valorMaximoDiaria",
-    ],
-  ],
-  [
-    "05. Aluguel de carro",
-    [
-      "solicitarAluguelCarro",
-      "categoriaVeiculo",
-      "tipoCambio",
-      "numeroPortas",
-      "arCondicionado",
-      "localRetiradaDevolucao",
-      "cnhPdf",
-    ],
-  ],
-];
-
 const REQUESTS_ENDPOINT = "/public/solicitacoes?sort=createdAt&order=desc";
 const ACTIVITY_ENDPOINT = "/public/alteracoes?sort=dataAlteracao&order=desc";
+
+const eventFields = [
+  "descricaoSolicitacao",
+  "nomeEvento",
+  "dataEvento",
+  "localEvento",
+  "justificativa",
+];
+
+const travelerFields = [
+  "nomeCompleto",
+  "dataNascimento",
+  "cargoFuncao",
+  "cpf",
+  "banco",
+  "agencia",
+  "contaCorrente",
+];
+
+const tripFields = [
+  "necessidade",
+  "localOrigem",
+  "dataIda",
+  "horarioIda",
+  "vooIda",
+  "localDestino",
+  "dataVolta",
+  "horarioVolta",
+  "valorMaximoDiaria",
+  "necessarioValorMaximoDiaria",
+];
+
+const projectFields = ["idFiotec", "metaProjeto", "coordenador", "setorFiocruz"];
+
+const carRentalFields = [
+  "solicitarAluguelCarro",
+  "categoriaVeiculo",
+  "tipoCambio",
+  "numeroPortas",
+  "arCondicionado",
+  "localRetiradaDevolucao",
+  "cnhPdf",
+];
 
 function titleFromRequest(item) {
   return item.nomeCompleto || item.nomeEvento || "Solicitação sem nome";
 }
 
-function routeFromRequest(item) {
+function readableRouteFromRequest(item) {
   return item.localOrigem || item.localDestino
-    ? `${item.localOrigem || "-"} → ${item.localDestino || "-"}`
+    ? `${item.localOrigem || "-"} \u2192 ${item.localDestino || "-"}`
     : "Rota não informada";
 }
 
@@ -98,6 +88,41 @@ function changePreview(log) {
   const next = String(log.valorNovo || "").trim();
   if (!original || original === "-") return `${field}: ${next || "-"}`;
   return `${field}: ${original} → ${next || "-"}`;
+}
+
+function DetailField({ field, item }) {
+  return (
+    <div className="public-detail-field">
+      <span>{labels[field] || field}</span>
+      <strong>{displayValue(field, item)}</strong>
+    </div>
+  );
+}
+
+function DetailCard({ title, icon, fields, item, className = "" }) {
+  return (
+    <section className={`public-detail-card ${className}`}>
+      <div className="public-detail-card-title">
+        <span aria-hidden="true">{icon}</span>
+        <h5>{title}</h5>
+      </div>
+      <div className="public-detail-fields">
+        {fields.map((field) => (
+          <DetailField key={field} field={field} item={item} />
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function OverviewCard({ label, value, note, tone = "" }) {
+  return (
+    <article className={`public-overview-card ${tone}`}>
+      <span>{label}</span>
+      <strong>{value || "-"}</strong>
+      {note ? <small>{note}</small> : null}
+    </article>
+  );
 }
 
 function NotificationMetric({ label, value, note }) {
@@ -283,7 +308,7 @@ function PublicRequestCard({ item }) {
             aria-label={`Baixar PDF da solicitação ${item.id}`}
             onClick={() => generatePDF(item)}
           >
-            Baixar PDF
+            Descarregar PDF
           </button>
           <button
             type="button"
@@ -292,7 +317,7 @@ function PublicRequestCard({ item }) {
             aria-expanded={expanded}
             onClick={toggleDetails}
           >
-            {expanded ? "Ocultar detalhes" : "Ver detalhes"}
+            {expanded ? "Ocultar detalhes" : "Mais ações"}
           </button>
         </div>
       </div>
@@ -304,7 +329,7 @@ function PublicRequestCard({ item }) {
         </div>
         <div>
           <span>Rota</span>
-          <strong>{routeFromRequest(item)}</strong>
+          <strong>{readableRouteFromRequest(item)}</strong>
         </div>
         <div>
           <span>Ida</span>
@@ -317,21 +342,31 @@ function PublicRequestCard({ item }) {
       </div>
 
       <div className="record-card-body">
-        {requestSections.map(([groupTitle, fields]) => (
-          <div className="record-section" key={groupTitle}>
-            <strong>{groupTitle}</strong>
-            <div className="record-fields">
-              {fields.map((field) => (
-                <div className="record-field" key={field}>
-                  <span>{labels[field] || field}</span>
-                  <b>{displayValue(field, item)}</b>
-                </div>
-              ))}
-            </div>
-          </div>
-        ))}
+        <div className="public-detail-overview">
+          <OverviewCard label="Solicitação" value={item.id} note={createdAtDisplay(item)} />
+          <OverviewCard
+            label="Status"
+            value={item.status || "Recebida"}
+            note={item.updatedAtClient ? `Atualizada em ${item.updatedAtClient}` : "Sem atualização"}
+            tone="success"
+          />
+          <OverviewCard label="Solicitante" value={item.nomeCompleto} note={item.cpf} />
+          <OverviewCard label="Projeto" value={item.idFiotec} note={visibleMetaProjeto(item.metaProjeto)} />
+          <OverviewCard
+            label="Rota"
+            value={readableRouteFromRequest(item)}
+            note={`${formatDate(item.dataIda) || "-"} até ${formatDate(item.dataVolta) || "-"}`}
+          />
+        </div>
 
-        <section className="public-audit-panel">
+        <div className="public-detail-grid">
+          <DetailCard title="Dados do evento" icon="01" fields={eventFields} item={item} />
+          <DetailCard title="Dados do viajante" icon="02" fields={travelerFields} item={item} />
+          <DetailCard title="Dados da viagem" icon="03" fields={tripFields} item={item} />
+          <DetailCard title="Projeto vinculado" icon="04" fields={projectFields} item={item} />
+          <DetailCard title="Aluguel de carro" icon="05" fields={carRentalFields} item={item} />
+
+        <section className="public-detail-card public-audit-panel">
           <div className="panel-heading public-audit-heading">
             <div>
               <span className="section-kicker">Alterações</span>
@@ -371,11 +406,14 @@ function PublicRequestCard({ item }) {
             </div>
           ) : null}
           {!loadingLogs && !logMessage && !auditLogs.length && (
-            <div className="empty-records">
-              Nenhuma alteração registrada para esta solicitação.
+            <div className="public-empty-audit">
+              <div aria-hidden="true">✓</div>
+              <strong>Nenhuma alteração registrada</strong>
+              <span>para esta solicitação.</span>
             </div>
           )}
         </section>
+        </div>
       </div>
     </article>
   );
