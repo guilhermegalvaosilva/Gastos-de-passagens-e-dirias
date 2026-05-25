@@ -3,6 +3,6 @@
 @import "./pages/Home/HomePage.css";
 @import "./pages/Auth/LoginPage.css";
 @import "./pages/RequestForm/RequestFormPage.css";
+@import "./pages/PublicRequests/PublicRequestsPage.css";
 @import "./pages/Admin/AdminPage.css";
 @import "./styles/minimal.css";
-@import "./pages/PublicRequests/PublicRequestsPage.css";
