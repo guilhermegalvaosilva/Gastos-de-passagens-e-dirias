@@ -1,5 +1,6 @@
 ﻿import http from "node:http";
 import fsSync from "node:fs";
+import os from "node:os";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -1516,4 +1517,12 @@ server.on("error", (error) => {
 
 server.listen(PORT, "0.0.0.0", () => {
   console.log(`Servidor NUGB rodando em http://localhost:${PORT}`);
+  const networkUrls = Object.values(os.networkInterfaces())
+    .flat()
+    .filter((network) => network?.family === "IPv4" && !network.internal)
+    .map((network) => `http://${network.address}:${PORT}`);
+
+  if (networkUrls.length) {
+    console.log(`Acesso na rede local: ${networkUrls.join(" | ")}`);
+  }
 });

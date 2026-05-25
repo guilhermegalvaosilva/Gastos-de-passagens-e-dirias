@@ -19,6 +19,22 @@ Acesse:
 http://localhost:3002
 ```
 
+Para acessar de outra maquina na mesma rede, use o IP da maquina onde o
+backend esta rodando:
+
+```text
+http://IP-DA-MAQUINA:3002
+```
+
+No Windows, voce pode descobrir esse IP com:
+
+```powershell
+ipconfig
+```
+
+Procure pelo `IPv4` da sua rede Wi-Fi ou Ethernet. Se nao abrir em outra
+maquina, libere a porta `3002` no Firewall do Windows.
+
 Login inicial:
 
 ```text
@@ -76,6 +92,41 @@ Start command: npm start
 Health check: /api/health
 ```
 
+## GitHub Pages com API
+
+O GitHub Pages hospeda apenas o frontend estatico. Ele nao executa o backend
+Node.js nem cria rotas de API. Para o link do GitHub Pages funcionar com login,
+cadastros e painel admin, publique o backend em outro servico, como Render, e
+aponte o frontend para ele.
+
+No GitHub, configure uma variavel do repositorio:
+
+```text
+Settings > Secrets and variables > Actions > Variables > New repository variable
+```
+
+Use:
+
+```text
+Name: VITE_API_BASE
+Value: https://SEU-BACKEND.onrender.com/api
+```
+
+Depois rode novamente o workflow `Deploy GitHub Pages` ou faca um novo push na
+branch `main`.
+
+O link do GitHub Pages ficara parecido com:
+
+```text
+https://guilhermegalvaosilva.github.io/Gastos-de-passagens-e-diarias/
+```
+
+E a API sera chamada no backend publicado:
+
+```text
+https://SEU-BACKEND.onrender.com/api
+```
+
 ## Desenvolvimento
 
 Para editar o frontend com recarregamento automatico, rode dois terminais:
@@ -89,3 +140,35 @@ npm run dev
 ```
 
 O Vite redireciona `/api` para `http://localhost:3002`.
+Como o Vite escuta em `0.0.0.0`, outra maquina na mesma rede pode abrir:
+
+```text
+http://IP-DA-MAQUINA:5173
+```
+
+Se o backend estiver em outra maquina ou porta durante o desenvolvimento,
+configure o alvo da API antes de iniciar o Vite:
+
+```powershell
+$env:VITE_API_TARGET="http://IP-DO-BACKEND:3002"; npm run dev
+```
+
+## Docker
+
+Com Docker Compose:
+
+```bash
+docker compose up --build
+```
+
+Depois acesse na propria maquina:
+
+```text
+http://localhost:3002
+```
+
+Ou, em outra maquina na mesma rede:
+
+```text
+http://IP-DA-MAQUINA:3002
+```

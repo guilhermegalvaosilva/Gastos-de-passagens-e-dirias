@@ -8,7 +8,7 @@ services:
       - .env
     environment:
       PORT: 3002
-      CORS_ORIGIN: "https://guilhermegalvaosilva.github.io/Gastos-de-passagens-e-diarias/"
+      CORS_ORIGIN: "*"
     volumes:
       - nugb-gereb-data:/app/data
     restart: unless-stopped

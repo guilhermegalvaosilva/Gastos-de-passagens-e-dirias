@@ -5,11 +5,15 @@ export default defineConfig({
   base: "./",
   plugins: [react()],
   server: {
+    host: "0.0.0.0",
     proxy: {
       "/api": {
         target: process.env.VITE_API_TARGET || "http://localhost:3002",
         changeOrigin: true,
       },
     },
+  },
+  preview: {
+    host: "0.0.0.0",
   },
 });
