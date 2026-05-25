@@ -172,3 +172,43 @@ Ou, em outra maquina na mesma rede:
 ```text
 http://IP-DA-MAQUINA:3002
 ```
+
+### Docker usando o projeto direto do GitHub
+
+Tambem da para rodar em uma maquina que nao tenha o codigo baixado. O Docker
+Compose baixa o projeto direto do GitHub, constroi a imagem e sobe frontend e
+backend juntos.
+
+Crie um arquivo `.env` na mesma pasta onde voce vai rodar o comando:
+
+```text
+SUPABASE_URL=https://SEU-PROJETO.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=SUA_SERVICE_ROLE_KEY
+SUPABASE_LOCAL_FALLBACK=false
+DEFAULT_ADMIN_LOGIN=admin
+DEFAULT_ADMIN_PASSWORD=123456
+```
+
+Depois rode:
+
+```bash
+docker compose -f docker-compose.github.yml up --build
+```
+
+O projeto sera baixado deste repositorio:
+
+```text
+https://github.com/guilhermegalvaosilva/Gastos-de-passagens-e-diarias
+```
+
+Acesse:
+
+```text
+http://localhost:3002
+```
+
+Ou, em outra maquina na mesma rede:
+
+```text
+http://IP-DA-MAQUINA:3002
+```

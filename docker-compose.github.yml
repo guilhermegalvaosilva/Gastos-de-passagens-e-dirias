@@ -1,0 +1,19 @@
+services:
+  nugb-gereb-form:
+    build:
+      context: https://github.com/guilhermegalvaosilva/Gastos-de-passagens-e-diarias.git#main
+      dockerfile: Dockerfile
+    container_name: nugb-gereb-form
+    ports:
+      - "3002:3002"
+    env_file:
+      - .env
+    environment:
+      PORT: 3002
+      CORS_ORIGIN: "*"
+    volumes:
+      - nugb-gereb-data:/app/data
+    restart: unless-stopped
+
+volumes:
+  nugb-gereb-data:
