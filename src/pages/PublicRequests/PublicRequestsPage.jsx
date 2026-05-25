@@ -308,6 +308,7 @@ function PublicRequestCard({ item }) {
             aria-label={`Baixar PDF da solicitação ${item.id}`}
             onClick={() => generatePDF(item)}
           >
+            <span aria-hidden="true" className="public-action-icon">PDF</span>
             Descarregar PDF
           </button>
           <button
@@ -317,6 +318,7 @@ function PublicRequestCard({ item }) {
             aria-expanded={expanded}
             onClick={toggleDetails}
           >
+            <span aria-hidden="true" className="public-action-icon">⋯</span>
             {expanded ? "Ocultar detalhes" : "Mais ações"}
           </button>
         </div>

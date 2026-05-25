@@ -37,17 +37,49 @@
 
 .public-record-actions .btn-secondary,
 .public-record-actions .record-toggle-text {
-  min-width: 116px;
-  padding-inline: 14px;
+  min-width: 132px;
+  padding: 9px 13px;
+  border-radius: 8px;
 }
 
 .public-record-actions .record-toggle-text {
   width: auto;
-  min-height: 42px;
+  min-height: 40px;
 }
 
 .public-record-actions .record-toggle-text::before {
   content: none;
+}
+
+.public-record-actions button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-color: #cfe0da;
+  background: linear-gradient(180deg, #fff, #f8fbfa);
+  color: var(--primary-dark);
+  box-shadow: 0 8px 20px rgba(0, 56, 47, 0.07);
+}
+
+.public-record-actions button:hover {
+  border-color: var(--primary);
+  background: #f1fbf7;
+  transform: translateY(-1px);
+}
+
+.public-action-icon {
+  display: inline-grid;
+  place-items: center;
+  min-width: 24px;
+  height: 24px;
+  padding: 0 5px;
+  border-radius: 6px;
+  background: var(--primary-soft);
+  color: var(--primary);
+  font-size: 10px;
+  font-weight: 900;
+  line-height: 1;
 }
 
 .public-section-tabs {
