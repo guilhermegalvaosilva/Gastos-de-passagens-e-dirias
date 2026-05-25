@@ -508,10 +508,7 @@ function missingSupabaseEnv(config = loadSupabaseConfig()) {
 }
 
 function supabaseConfigRequired() {
-  return (
-    process.env.SUPABASE_LOCAL_FALLBACK === "false" ||
-    process.env.NODE_ENV === "production"
-  );
+  return process.env.SUPABASE_LOCAL_FALLBACK === "false";
 }
 
 function supabaseTableName(collection) {
