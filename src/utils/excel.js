@@ -87,7 +87,7 @@ function summaryFromRows(rows) {
   const routes = new Set(
     rows
       .filter((item) => item.localOrigem && item.localDestino)
-      .map((item) => `${item.localOrigem} -> ${item.localDestino}`),
+      .map((item) => `${item.localOrigem} → ${item.localDestino}`),
   );
 
   return [

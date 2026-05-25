@@ -78,7 +78,7 @@ function titleFromRequest(item) {
 
 function routeFromRequest(item) {
   return item.localOrigem || item.localDestino
-    ? `${item.localOrigem || "-"} -> ${item.localDestino || "-"}`
+    ? `${item.localOrigem || "-"} → ${item.localDestino || "-"}`
     : "Rota não informada";
 }
 
@@ -90,6 +90,14 @@ function isCreation(log) {
 
 function notificationLabel(log) {
   return isCreation(log) ? "Novo formulário" : "Edição";
+}
+
+function changePreview(log) {
+  const field = log.campoAlterado || "Formulário";
+  const original = String(log.valorOriginal || "").trim();
+  const next = String(log.valorNovo || "").trim();
+  if (!original || original === "-") return `${field}: ${next || "-"}`;
+  return `${field}: ${original} → ${next || "-"}`;
 }
 
 function NotificationMetric({ label, value, note }) {
@@ -205,10 +213,7 @@ function PublicAlertsView({ loading, logs }) {
                     <small>{log.dataAlteracaoClient}</small>
                   </div>
                   <strong>{log.titulo || "Registro sem título"}</strong>
-                  <p>
-                    {log.campoAlterado || "Formulário"}:{" "}
-                    {log.valorOriginal || "-"} -&gt; {log.valorNovo || "-"}
-                  </p>
+                  <p>{changePreview(log)}</p>
                   <span className="notification-author">
                     por {log.alteradoPor || "sistema"}
                   </span>
