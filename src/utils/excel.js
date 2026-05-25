@@ -1,5 +1,5 @@
-import { labels, requestFields } from "../data/formData";
 import { REQUEST_STATUS_OPTIONS } from "../config/requestStatus";
+import { labels, requestFields } from "../data/formData";
 import {
   displayValue,
   formatCurrency,
@@ -8,14 +8,37 @@ import {
 } from "./formatters";
 
 const THEME = {
-  navy: "#08283D",
-  blue: "#123F5D",
-  blueSoft: "#EDF4F8",
-  gold: "#B98A34",
-  goldSoft: "#FFF7E6",
-  border: "#C7D5E2",
-  text: "#17202E",
+  ink: "#111113",
+  paper: "#FFFFFF",
+  canvas: "#E9E9EC",
+  soft: "#F5F5F6",
+  line: "#D9D9DE",
+  muted: "#737780",
+  green: "#15803D",
 };
+
+const sectionFields = [
+  {
+    title: "Evento",
+    fields: ["id", "status", "createdAt", "descricaoSolicitacao", "nomeEvento", "dataEvento", "localEvento", "justificativa"],
+  },
+  {
+    title: "Projeto",
+    fields: ["idFiotec", "metaProjeto", "coordenador", "setorFiocruz"],
+  },
+  {
+    title: "Viajante",
+    fields: ["nomeCompleto", "dataNascimento", "cargoFuncao", "cpf", "banco", "agencia", "contaCorrente"],
+  },
+  {
+    title: "Viagem",
+    fields: ["necessidade", "localOrigem", "dataIda", "horarioIda", "vooIda", "localDestino", "dataVolta", "horarioVolta", "necessarioValorMaximoDiaria", "valorMaximoDiaria"],
+  },
+  {
+    title: "Aluguel de carro",
+    fields: ["solicitarAluguelCarro", "categoriaVeiculo", "tipoCambio", "numeroPortas", "arCondicionado", "localRetiradaDevolucao", "cnhPdf"],
+  },
+];
 
 function escapeXml(value) {
   return String(value ?? "")
@@ -50,6 +73,10 @@ function countByNeed(rows, need) {
   ).length;
 }
 
+function carRentalRows(rows) {
+  return rows.filter((item) => item.solicitarAluguelCarro === "SIM");
+}
+
 function summaryFromRows(rows) {
   const totalDaily = rows.reduce(
     (sum, item) => sum + parseMoneyValue(item.valorMaximoDiaria),
@@ -64,19 +91,21 @@ function summaryFromRows(rows) {
   );
 
   return [
-    ["Solicitações exportadas", rows.length],
+    ["Solicitacoes exportadas", rows.length],
     ["Com passagens", countByNeed(rows, "passagens")],
-    ["Com diárias", countByNeed(rows, "diaria")],
+    ["Com diarias", countByNeed(rows, "diaria")],
+    ["Com aluguel de carro", carRentalRows(rows).length],
     ["Rotas diferentes", routes.size],
-    ["Total estimado de diárias", formatCurrency(totalDaily)],
-    ["Média por solicitação com valor", formatCurrency(average)],
+    ["Total estimado de diarias", formatCurrency(totalDaily)],
+    ["Media por solicitacao com valor", formatCurrency(average)],
     ["Gerado em", workbookDate()],
-    ["Usuário", currentLogin()],
+    ["Usuario", currentLogin()],
   ];
 }
 
-function textCell(value, style = "Cell") {
-  return `<Cell ss:StyleID="${style}"><Data ss:Type="String">${escapeXml(value)}</Data></Cell>`;
+function textCell(value, style = "Cell", mergeAcross = 0) {
+  const merge = mergeAcross ? ` ss:MergeAcross="${mergeAcross}"` : "";
+  return `<Cell ss:StyleID="${style}"${merge}><Data ss:Type="String">${escapeXml(value)}</Data></Cell>`;
 }
 
 function numberCell(value, style = "NumberCell") {
@@ -92,56 +121,41 @@ function column(width) {
   return `<Column ss:AutoFitWidth="0" ss:Width="${width}" />`;
 }
 
+function worksheetOptions(freeze = false) {
+  return freeze
+    ? `<WorksheetOptions xmlns="urn:schemas-microsoft-com:office:excel">
+        <FreezePanes/>
+        <FrozenNoSplit/>
+        <SplitHorizontal>1</SplitHorizontal>
+        <TopRowBottomPane>1</TopRowBottomPane>
+        <ActivePane>2</ActivePane>
+      </WorksheetOptions>`
+    : "";
+}
+
 function buildSummarySheet(rows) {
   const summaryRows = summaryFromRows(rows)
-    .map(([label, value], index) =>
+    .map(([label, value]) =>
       row([
         textCell(label, "SummaryLabel"),
         typeof value === "number"
           ? numberCell(value, "SummaryValue")
           : textCell(value, "SummaryValue"),
-      ], index < 6 ? 28 : 24),
+      ], 28),
     )
     .join("");
 
   return `
     <Worksheet ss:Name="Resumo">
       <Table>
+        ${column(250)}
         ${column(230)}
-        ${column(210)}
-        ${row([textCell("Relatório Administrativo NUGB / GEREB", "Title")], 34)}
-        ${row([textCell("Exportação de passagens e diárias", "Subtitle")], 24)}
-        ${row([textCell("", "Blank")], 10)}
+        ${column(120)}
+        ${row([textCell("NUGB / GEREB", "Hero", 2)], 34)}
+        ${row([textCell("Relatorio administrativo de passagens, diarias e aluguel de carro", "HeroSub", 2)], 24)}
+        ${row([textCell("", "Spacer", 2)], 10)}
         ${summaryRows}
       </Table>
-    </Worksheet>`;
-}
-
-function buildRequestsSheet(rows) {
-  const header = row(
-    requestFields.map((field) => textCell(labels[field] || field, "Header")),
-    30,
-  );
-
-  const body = rows
-    .map((item, index) =>
-      row(
-        requestFields.map((field) =>
-          textCell(displayValue(field, item), index % 2 ? "CellAlt" : "Cell"),
-        ),
-        24,
-      ),
-    )
-    .join("");
-
-  return `
-    <Worksheet ss:Name="Solicitações">
-      <Table>
-        ${requestFields.map((field) => column(field === "justificativa" ? 280 : 155)).join("")}
-        ${header}
-        ${body}
-      </Table>
-      <AutoFilter x:Range="R1C1:R${rows.length + 1}C${requestFields.length}" xmlns="urn:schemas-microsoft-com:office:excel" />
     </Worksheet>`;
 }
 
@@ -150,23 +164,116 @@ function buildStatusSheet(rows) {
     const count = rows.filter((item) => (item.status || "Recebida") === status).length;
     const percent = rows.length ? `${Math.round((count / rows.length) * 100)}%` : "0%";
     return row([
-      textCell(status, "SummaryLabel"),
-      numberCell(count, "SummaryValue"),
-      textCell(percent, "SummaryValue"),
-    ], 26);
+      textCell(status, "CellStrong"),
+      numberCell(count, "NumberCell"),
+      textCell(percent, "Cell"),
+    ], 25);
   }).join("");
 
   return `
     <Worksheet ss:Name="Status">
       <Table>
-        ${column(180)}
-        ${column(110)}
-        ${column(110)}
-        ${row([textCell("Status da fila", "Title")], 34)}
-        ${row([textCell("Distribuição das solicitações por situação administrativa", "Subtitle")], 24)}
-        ${row([textCell("", "Blank")], 10)}
+        ${column(210)}
+        ${column(120)}
+        ${column(120)}
+        ${row([textCell("Status da fila", "Hero", 2)], 32)}
+        ${row([textCell("Distribuicao das solicitacoes por situacao", "HeroSub", 2)], 22)}
+        ${row([textCell("", "Spacer", 2)], 8)}
         ${row([textCell("Status", "Header"), textCell("Quantidade", "Header"), textCell("Percentual", "Header")], 28)}
         ${statusRows}
+      </Table>
+      ${worksheetOptions(true)}
+    </Worksheet>`;
+}
+
+function buildCarRentalSheet(rows) {
+  const fields = [
+    "id",
+    "nomeCompleto",
+    "status",
+    "categoriaVeiculo",
+    "tipoCambio",
+    "numeroPortas",
+    "arCondicionado",
+    "localRetiradaDevolucao",
+    "cnhPdf",
+  ];
+  const cars = carRentalRows(rows);
+  const body = cars
+    .map((item, index) =>
+      row(fields.map((field) => textCell(displayValue(field, item), index % 2 ? "CellAlt" : "Cell")), 24),
+    )
+    .join("");
+
+  return `
+    <Worksheet ss:Name="Aluguel de carro">
+      <Table>
+        ${fields.map((field) => column(field === "localRetiradaDevolucao" ? 250 : 150)).join("")}
+        ${row(fields.map((field) => textCell(labels[field] || field, "Header")), 30)}
+        ${body || row([textCell("Nenhuma solicitacao com aluguel de carro.", "Cell", fields.length - 1)], 26)}
+      </Table>
+      ${worksheetOptions(true)}
+      <AutoFilter x:Range="R1C1:R${Math.max(cars.length + 1, 2)}C${fields.length}" xmlns="urn:schemas-microsoft-com:office:excel" />
+    </Worksheet>`;
+}
+
+function buildRequestsSheet(rows) {
+  const header = row(
+    requestFields.map((field) => textCell(labels[field] || field, "Header")),
+    32,
+  );
+
+  const body = rows
+    .map((item, index) =>
+      row(
+        requestFields.map((field) =>
+          textCell(displayValue(field, item), index % 2 ? "CellAlt" : "Cell"),
+        ),
+        25,
+      ),
+    )
+    .join("");
+
+  return `
+    <Worksheet ss:Name="Base completa">
+      <Table>
+        ${requestFields.map((field) => {
+          if (["justificativa", "localRetiradaDevolucao"].includes(field)) return column(280);
+          if (["descricaoSolicitacao", "nomeEvento", "banco"].includes(field)) return column(220);
+          return column(150);
+        }).join("")}
+        ${header}
+        ${body}
+      </Table>
+      ${worksheetOptions(true)}
+      <AutoFilter x:Range="R1C1:R${rows.length + 1}C${requestFields.length}" xmlns="urn:schemas-microsoft-com:office:excel" />
+    </Worksheet>`;
+}
+
+function buildSectionsSheet(rows) {
+  const outputRows = [];
+  rows.forEach((item) => {
+    outputRows.push(row([textCell(item.id || "-", "SectionRow", 3)], 26));
+    sectionFields.forEach((section) => {
+      outputRows.push(row([textCell(section.title, "MiniHeader", 3)], 22));
+      section.fields.forEach((field) => {
+        outputRows.push(row([
+          textCell(labels[field] || field, "SummaryLabel"),
+          textCell(displayValue(field, item), "Cell", 2),
+        ], 22));
+      });
+      outputRows.push(row([textCell("", "Spacer", 3)], 6));
+    });
+  });
+
+  return `
+    <Worksheet ss:Name="Detalhado">
+      <Table>
+        ${column(230)}
+        ${column(260)}
+        ${column(260)}
+        ${column(260)}
+        ${outputRows.join("")}
       </Table>
     </Worksheet>`;
 }
@@ -182,74 +289,88 @@ function buildWorkbook(rows) {
   xmlns:html="http://www.w3.org/TR/REC-html40">
   <DocumentProperties xmlns="urn:schemas-microsoft-com:office:office">
     <Author>NUGB / GEREB</Author>
-    <Title>Relatório Administrativo NUGB</Title>
+    <Title>Relatorio Administrativo NUGB</Title>
     <Created>${new Date().toISOString()}</Created>
   </DocumentProperties>
   <Styles>
     <Style ss:ID="Default" ss:Name="Normal">
-      <Font ss:FontName="Segoe UI" ss:Size="10" ss:Color="${THEME.text}" />
+      <Font ss:FontName="Segoe UI" ss:Size="10" ss:Color="${THEME.ink}" />
       <Alignment ss:Vertical="Top" ss:WrapText="1" />
     </Style>
-    <Style ss:ID="Title">
+    <Style ss:ID="Hero">
       <Font ss:FontName="Segoe UI" ss:Size="18" ss:Bold="1" ss:Color="#FFFFFF" />
-      <Interior ss:Color="${THEME.navy}" ss:Pattern="Solid" />
+      <Interior ss:Color="${THEME.ink}" ss:Pattern="Solid" />
       <Alignment ss:Vertical="Center" />
     </Style>
-    <Style ss:ID="Subtitle">
-      <Font ss:FontName="Segoe UI" ss:Size="11" ss:Color="#D7E3EE" />
-      <Interior ss:Color="${THEME.navy}" ss:Pattern="Solid" />
+    <Style ss:ID="HeroSub">
+      <Font ss:FontName="Segoe UI" ss:Size="10" ss:Color="#E7E7EA" />
+      <Interior ss:Color="${THEME.ink}" ss:Pattern="Solid" />
     </Style>
-    <Style ss:ID="Blank" />
-    <Style ss:ID="SummaryLabel">
-      <Font ss:FontName="Segoe UI" ss:Size="10" ss:Bold="1" ss:Color="${THEME.navy}" />
-      <Interior ss:Color="${THEME.blueSoft}" ss:Pattern="Solid" />
+    <Style ss:ID="Spacer" />
+    <Style ss:ID="Header">
+      <Font ss:FontName="Segoe UI" ss:Size="9" ss:Bold="1" ss:Color="#FFFFFF" />
+      <Interior ss:Color="${THEME.ink}" ss:Pattern="Solid" />
+      <Alignment ss:Horizontal="Center" ss:Vertical="Center" ss:WrapText="1" />
       <Borders>
-        <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="${THEME.border}" />
+        <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="2" ss:Color="${THEME.green}" />
+      </Borders>
+    </Style>
+    <Style ss:ID="MiniHeader">
+      <Font ss:FontName="Segoe UI" ss:Size="10" ss:Bold="1" ss:Color="#FFFFFF" />
+      <Interior ss:Color="${THEME.muted}" ss:Pattern="Solid" />
+    </Style>
+    <Style ss:ID="SectionRow">
+      <Font ss:FontName="Segoe UI" ss:Size="12" ss:Bold="1" ss:Color="#FFFFFF" />
+      <Interior ss:Color="${THEME.ink}" ss:Pattern="Solid" />
+    </Style>
+    <Style ss:ID="SummaryLabel">
+      <Font ss:FontName="Segoe UI" ss:Size="10" ss:Bold="1" ss:Color="${THEME.ink}" />
+      <Interior ss:Color="${THEME.soft}" ss:Pattern="Solid" />
+      <Borders>
+        <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="${THEME.line}" />
       </Borders>
     </Style>
     <Style ss:ID="SummaryValue">
-      <Font ss:FontName="Segoe UI" ss:Size="10" ss:Bold="1" ss:Color="#6D4B08" />
-      <Interior ss:Color="${THEME.goldSoft}" ss:Pattern="Solid" />
+      <Font ss:FontName="Segoe UI" ss:Size="10" ss:Bold="1" ss:Color="${THEME.green}" />
+      <Interior ss:Color="#F2FBF5" ss:Pattern="Solid" />
       <Borders>
-        <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="${THEME.border}" />
-      </Borders>
-    </Style>
-    <Style ss:ID="Header">
-      <Font ss:FontName="Segoe UI" ss:Size="9" ss:Bold="1" ss:Color="#FFFFFF" />
-      <Interior ss:Color="${THEME.blue}" ss:Pattern="Solid" />
-      <Alignment ss:Horizontal="Center" ss:Vertical="Center" ss:WrapText="1" />
-      <Borders>
-        <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="2" ss:Color="${THEME.gold}" />
+        <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="${THEME.line}" />
       </Borders>
     </Style>
     <Style ss:ID="Cell">
-      <Interior ss:Color="#FFFFFF" ss:Pattern="Solid" />
+      <Interior ss:Color="${THEME.paper}" ss:Pattern="Solid" />
       <Borders>
-        <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="${THEME.border}" />
+        <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="${THEME.line}" />
       </Borders>
       <NumberFormat ss:Format="@" />
     </Style>
     <Style ss:ID="CellAlt">
-      <Interior ss:Color="#F3F8FC" ss:Pattern="Solid" />
+      <Interior ss:Color="${THEME.soft}" ss:Pattern="Solid" />
       <Borders>
-        <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="${THEME.border}" />
+        <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="${THEME.line}" />
       </Borders>
       <NumberFormat ss:Format="@" />
     </Style>
+    <Style ss:ID="CellStrong">
+      <Font ss:FontName="Segoe UI" ss:Size="10" ss:Bold="1" ss:Color="${THEME.ink}" />
+      <Interior ss:Color="${THEME.paper}" ss:Pattern="Solid" />
+    </Style>
     <Style ss:ID="NumberCell">
-      <Font ss:FontName="Segoe UI" ss:Size="10" ss:Bold="1" ss:Color="${THEME.navy}" />
-      <Interior ss:Color="${THEME.goldSoft}" ss:Pattern="Solid" />
+      <Font ss:FontName="Segoe UI" ss:Size="10" ss:Bold="1" ss:Color="${THEME.ink}" />
+      <Interior ss:Color="#F2FBF5" ss:Pattern="Solid" />
     </Style>
   </Styles>
   ${buildSummarySheet(rows)}
   ${buildStatusSheet(rows)}
+  ${buildCarRentalSheet(rows)}
   ${buildRequestsSheet(rows)}
+  ${buildSectionsSheet(rows)}
 </Workbook>`;
 }
 
 export function exportRequestsWorkbook(rows) {
   if (!rows.length) {
-    alert("Não há dados para exportar.");
+    alert("Nao ha dados para exportar.");
     return;
   }
 

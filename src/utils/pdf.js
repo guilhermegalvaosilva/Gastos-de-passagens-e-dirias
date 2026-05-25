@@ -2,74 +2,81 @@ import { displayValue } from "./formatters";
 
 const PAGE_WIDTH = 595.28;
 const PAGE_HEIGHT = 841.89;
-const MARGIN = 42;
-const PRIMARY = "0.031 0.157 0.239";
-const PRIMARY_LIGHT = "0.071 0.247 0.365";
-const ACCENT = "0.725 0.541 0.204";
-const BORDER = "0.835 0.878 0.918";
-const TEXT = "0.090 0.126 0.180";
-const MUTED = "0.400 0.459 0.541";
-const SOFT = "0.949 0.973 0.988";
+const MARGIN = 38;
+const CONTENT_WIDTH = PAGE_WIDTH - MARGIN * 2;
 
-const pdfFields = [
-  [
-    "01. Cadastro do Evento",
-    [
-      ["1. Descrição da Solicitação", "descricaoSolicitacao"],
-      ["2. Nome do Evento", "nomeEvento"],
-      ["3. Data do Evento", "dataEvento"],
-      ["4. Local de Realização do Evento", "localEvento"],
-      ["5. Justificativa da Solicitação", "justificativa"],
+const COLORS = {
+  ink: "0.071 0.071 0.071",
+  muted: "0.376 0.392 0.376",
+  canvas: "0.957 0.973 0.953",
+  soft: "0.976 0.992 0.984",
+  line: "0.800 0.871 0.843",
+  green: "0.000 0.478 0.325",
+  greenDark: "0.071 0.235 0.208",
+  greenSoft: "0.902 0.957 0.937",
+  warm: "0.980 0.984 0.965",
+  white: "1 1 1",
+};
+
+const pdfSections = [
+  {
+    title: "01. Cadastro do evento",
+    fields: [
+      ["Descricao da solicitacao", "descricaoSolicitacao", true],
+      ["Nome do evento", "nomeEvento", true],
+      ["Data do evento", "dataEvento"],
+      ["Local de realizacao", "localEvento"],
+      ["Justificativa", "justificativa", true],
     ],
-  ],
-  [
-    "02. Projeto Vinculado",
-    [
-      ["6. Identificação do Projeto - ID FIOTEC", "idFiotec"],
-      ["7. Meta do Projeto", "metaProjeto"],
-      ["8. Coordenador", "coordenador"],
-      ["9. Setor Fiocruz", "setorFiocruz"],
+  },
+  {
+    title: "05. Aluguel de carro",
+    fields: [
+      ["Solicitar aluguel de carro?", "solicitarAluguelCarro"],
+      ["Categoria do veiculo", "categoriaVeiculo"],
+      ["Tipo de cambio", "tipoCambio"],
+      ["Numero de portas", "numeroPortas"],
+      ["Ar-condicionado", "arCondicionado"],
+      ["Local de retirada e devolucao", "localRetiradaDevolucao", true],
+      ["Copia da CNH em PDF", "cnhPdf", true],
     ],
-  ],
-  [
-    "03. Informações do Viajante",
-    [
-      ["10. Nome Completo", "nomeCompleto"],
-      ["11. Data de Nascimento", "dataNascimento"],
-      ["12. Cargo / Função", "cargoFuncao"],
-      ["13. CPF", "cpf"],
-      ["14. Banco", "banco"],
-      ["15. Agência", "agencia"],
-      ["16. Conta Corrente", "contaCorrente"],
+  },
+  {
+    title: "02. Projeto vinculado",
+    fields: [
+      ["ID FIOTEC", "idFiotec"],
+      ["Meta do projeto", "metaProjeto"],
+      ["Coordenador", "coordenador"],
+      ["Setor Fiocruz", "setorFiocruz"],
     ],
-  ],
-  [
-    "04. Informações da Solicitação",
-    [
-      ["17. Qual a necessidade?", "necessidade"],
-      ["18. Local de Origem", "localOrigem"],
-      ["19. Data de Ida", "dataIda"],
-      ["20. Horário de Ida", "horarioIda"],
-      ["21. Indicação do voo de ida", "vooIda"],
-      ["22. Local de Destino", "localDestino"],
-      ["23. Data de Volta", "dataVolta"],
-      ["24. Horário de Volta", "horarioVolta"],
-      ["25. É necessário valor máximo para diária?", "necessarioValorMaximoDiaria"],
-      ["26. Qual o valor máximo para diária total", "valorMaximoDiaria"],
+  },
+  {
+    title: "03. Dados do viajante",
+    fields: [
+      ["Nome completo", "nomeCompleto", true],
+      ["Data de nascimento", "dataNascimento"],
+      ["Cargo / Funcao", "cargoFuncao"],
+      ["CPF", "cpf"],
+      ["Banco", "banco", true],
+      ["Agencia", "agencia"],
+      ["Conta corrente", "contaCorrente"],
     ],
-  ],
-  [
-    "05. Aluguel de Carro",
-    [
-      ["27. Solicitar aluguel de carro?", "solicitarAluguelCarro"],
-      ["28. Categoria do veiculo", "categoriaVeiculo"],
-      ["29. Tipo de cambio", "tipoCambio"],
-      ["30. Numero de portas", "numeroPortas"],
-      ["31. Ar-condicionado", "arCondicionado"],
-      ["32. Local de retirada e devolucao", "localRetiradaDevolucao"],
-      ["33. Copia da CNH em PDF", "cnhPdf"],
+  },
+  {
+    title: "04. Dados da viagem",
+    fields: [
+      ["Necessidade", "necessidade"],
+      ["Local de origem", "localOrigem"],
+      ["Data de ida", "dataIda"],
+      ["Horario de ida", "horarioIda"],
+      ["Voo de ida", "vooIda", true],
+      ["Local de destino", "localDestino"],
+      ["Data de volta", "dataVolta"],
+      ["Horario de volta", "horarioVolta"],
+      ["Valor maximo para diaria?", "necessarioValorMaximoDiaria"],
+      ["Valor maximo da diaria", "valorMaximoDiaria"],
     ],
-  ],
+  },
 ];
 
 function latinText(value) {
@@ -90,7 +97,7 @@ function pdfString(value) {
 }
 
 function wrapText(value, maxChars) {
-  const words = latinText(value).split(" ");
+  const words = latinText(value || "-").split(" ");
   const lines = [];
   let line = "";
   words.forEach((word) => {
@@ -142,14 +149,14 @@ class PdfDocument {
     this.op(`${color} rg ${x} ${PAGE_HEIGHT - y - height} ${width} ${height} re f`);
   }
 
-  strokeRect(x, y, width, height, color = BORDER) {
+  strokeRect(x, y, width, height, color = COLORS.line) {
     this.op(`${color} RG ${x} ${PAGE_HEIGHT - y - height} ${width} ${height} re S`);
   }
 
   text(x, y, value, options = {}) {
-    const size = options.size || 10;
+    const size = options.size || 9;
     const font = options.bold ? "F2" : "F1";
-    const color = options.color || TEXT;
+    const color = options.color || COLORS.ink;
     this.op(
       `BT /${font} ${size} Tf ${color} rg ${x} ${topToPdfY(y)} Td (${pdfString(
         value,
@@ -157,84 +164,184 @@ class PdfDocument {
     );
   }
 
+  line(x1, y1, x2, y2, color = COLORS.line) {
+    this.op(`${color} RG ${x1} ${topToPdfY(y1)} m ${x2} ${topToPdfY(y2)} l S`);
+  }
+
   drawHeader() {
-    this.rect(0, 0, PAGE_WIDTH, 92, PRIMARY);
-    this.rect(0, 92, PAGE_WIDTH, 6, ACCENT);
-    this.rect(MARGIN, 24, 104, 44, "1 1 1");
-    this.text(MARGIN + 17, 48, "FIOCRUZ", { size: 15, bold: true, color: PRIMARY });
-    this.text(MARGIN + 18, 61, "BRASILIA", { size: 7, bold: true, color: ACCENT });
-    this.text(164, 34, "Fiocruz Brasília - NUGB/GEREB", {
+    this.rect(0, 0, PAGE_WIDTH, 118, COLORS.canvas);
+    this.rect(0, 0, 9, 118, COLORS.green);
+    this.line(MARGIN, 96, PAGE_WIDTH - MARGIN, 96, COLORS.line);
+
+    this.rect(MARGIN, 28, 36, 36, COLORS.green);
+    this.text(MARGIN + 10, 51, "N", { size: 17, bold: true, color: COLORS.white });
+
+    this.text(MARGIN + 50, 34, "NUGB / GEREB", {
       size: 9,
       bold: true,
-      color: ACCENT,
+      color: COLORS.green,
     });
-    this.text(164, 56, "Comprovante de Solicitação", {
-      size: 22,
+    this.text(MARGIN + 50, 57, "Comprovante de solicitacao de viagem", {
+      size: 19,
       bold: true,
-      color: "1 1 1",
+      color: COLORS.ink,
     });
-    this.text(164, 76, `Protocolo ${this.data.id || "-"}`, {
-      size: 10,
+    this.text(MARGIN + 50, 76, "Passagens, diarias e apoio logistico", {
+      size: 9,
+      color: COLORS.muted,
+    });
+
+    const protocolX = PAGE_WIDTH - MARGIN - 168;
+    this.rect(protocolX, 28, 168, 52, COLORS.white);
+    this.strokeRect(protocolX, 28, 168, 52, COLORS.line);
+    this.text(protocolX + 12, 46, `Protocolo: ${this.data.id || "-"}`, {
+      size: 9,
       bold: true,
-      color: "0.835 0.890 0.933",
+      color: COLORS.greenDark,
     });
-    this.y = 122;
+    this.text(protocolX + 12, 64, `Status: ${this.data.status || "Recebida"}`, {
+      size: 9,
+      color: COLORS.muted,
+    });
+
+    this.y = 136;
   }
 
   ensureSpace(height) {
-    if (this.y + height > PAGE_HEIGHT - 54) {
+    if (this.y + height > PAGE_HEIGHT - 48) {
       this.addPage();
     }
   }
 
-  sectionTitle(title) {
-    this.ensureSpace(34);
-    this.rect(MARGIN, this.y, PAGE_WIDTH - MARGIN * 2, 26, SOFT);
-    this.strokeRect(MARGIN, this.y, PAGE_WIDTH - MARGIN * 2, 26);
-    this.text(MARGIN + 12, this.y + 17, title, {
-      size: 11,
+  drawSummary() {
+    this.ensureSpace(104);
+    this.text(MARGIN, this.y, "Resumo da solicitacao", {
+      size: 12,
       bold: true,
-      color: PRIMARY_LIGHT,
+      color: COLORS.greenDark,
     });
-    this.y += 34;
-  }
+    this.text(MARGIN, this.y + 16, "Principais informacoes para conferencia rapida.", {
+      size: 8,
+      color: COLORS.muted,
+    });
 
-  field(label, value) {
-    const width = PAGE_WIDTH - MARGIN * 2;
-    const valueLines = wrapText(value || "-", 86);
-    const height = Math.max(52, 24 + valueLines.length * 12);
-    this.ensureSpace(height + 7);
-    this.strokeRect(MARGIN, this.y, width, height);
-    this.text(MARGIN + 12, this.y + 17, label, {
-      size: 8.5,
-      bold: true,
-      color: ACCENT,
-    });
-    valueLines.forEach((line, index) => {
-      this.text(MARGIN + 12, this.y + 34 + index * 12, line, {
-        size: 10,
-        color: TEXT,
+    const cardWidth = (CONTENT_WIDTH - 30) / 4;
+    const cards = [
+      ["Solicitante", displayValue("nomeCompleto", this.data)],
+      ["Necessidade", displayValue("necessidade", this.data)],
+      ["Periodo", `${displayValue("dataIda", this.data)} a ${displayValue("dataVolta", this.data)}`],
+      ["Aluguel", displayValue("solicitarAluguelCarro", this.data)],
+    ];
+
+    const cardY = this.y + 30;
+    cards.forEach(([label, value], index) => {
+      const x = MARGIN + index * (cardWidth + 10);
+      this.rect(x, cardY, cardWidth, 58, index === 0 ? COLORS.green : COLORS.white);
+      this.strokeRect(x, cardY, cardWidth, 58, index === 0 ? COLORS.green : COLORS.line);
+      this.text(x + 10, cardY + 16, label, {
+        size: 7.5,
+        bold: true,
+        color: index === 0 ? COLORS.greenSoft : COLORS.green,
+      });
+      wrapText(value, index === 0 ? 20 : 18).slice(0, 2).forEach((line, lineIndex) => {
+        this.text(x + 10, cardY + 34 + lineIndex * 10, line, {
+          size: 9,
+          bold: lineIndex === 0,
+          color: index === 0 ? COLORS.white : COLORS.ink,
+        });
       });
     });
-    this.y += height + 7;
+
+    this.y += 104;
+  }
+
+  sectionTitle(title) {
+    this.ensureSpace(38);
+    this.rect(MARGIN, this.y, CONTENT_WIDTH, 30, COLORS.greenSoft);
+    this.rect(MARGIN, this.y, 5, 30, COLORS.green);
+    this.strokeRect(MARGIN, this.y, CONTENT_WIDTH, 30, COLORS.line);
+    this.text(MARGIN + 14, this.y + 19, title.toUpperCase(), {
+      size: 10,
+      bold: true,
+      color: COLORS.greenDark,
+    });
+    this.y += 40;
+  }
+
+  fieldHeight(value, width) {
+    const maxChars = Math.max(20, Math.floor(width / 5.4));
+    const lines = wrapText(value, maxChars).slice(0, 5);
+    return Math.max(46, 23 + lines.length * 11);
+  }
+
+  fieldBox(x, y, width, height, label, value) {
+    this.rect(x, y, width, height, COLORS.white);
+    this.strokeRect(x, y, width, height, COLORS.line);
+    this.rect(x, y, width, 20, COLORS.warm);
+    this.text(x + 9, y + 15, label, {
+      size: 7.5,
+      bold: true,
+      color: COLORS.greenDark,
+    });
+    const maxChars = Math.max(20, Math.floor(width / 5.4));
+    wrapText(value, maxChars).slice(0, 5).forEach((line, index) => {
+      this.text(x + 9, y + 31 + index * 11, line, {
+        size: 9.2,
+        color: COLORS.ink,
+      });
+    });
+  }
+
+  fieldsGrid(fields) {
+    const gap = 8;
+    const half = (CONTENT_WIDTH - gap) / 2;
+    for (let index = 0; index < fields.length; index += 1) {
+      const [label, key, full] = fields[index];
+      const value = displayValue(key, this.data);
+
+      if (full) {
+        const height = this.fieldHeight(value, CONTENT_WIDTH);
+        this.ensureSpace(height + 8);
+        this.fieldBox(MARGIN, this.y, CONTENT_WIDTH, height, label, value);
+        this.y += height + 8;
+        continue;
+      }
+
+      const next = fields[index + 1];
+      const nextIsPair = next && !next[2];
+      const nextValue = nextIsPair ? displayValue(next[1], this.data) : "";
+      const height = Math.max(
+        this.fieldHeight(value, half),
+        nextIsPair ? this.fieldHeight(nextValue, half) : 46,
+      );
+      this.ensureSpace(height + 8);
+      this.fieldBox(MARGIN, this.y, half, height, label, value);
+      if (nextIsPair) {
+        this.fieldBox(MARGIN + half + gap, this.y, half, height, next[0], nextValue);
+        index += 1;
+      }
+      this.y += height + 8;
+    }
   }
 
   footer(pageNumber) {
-    this.text(MARGIN, PAGE_HEIGHT - 28, "Documento gerado pelo sistema administrativo NUGB/GEREB.", {
-      size: 8,
-      color: MUTED,
+    this.line(MARGIN, PAGE_HEIGHT - 38, PAGE_WIDTH - MARGIN, PAGE_HEIGHT - 38, COLORS.line);
+    this.text(MARGIN, PAGE_HEIGHT - 24, "Documento gerado pelo sistema administrativo NUGB/GEREB.", {
+      size: 7.5,
+      color: COLORS.muted,
     });
-    this.text(PAGE_WIDTH - MARGIN - 45, PAGE_HEIGHT - 28, `Página ${pageNumber}`, {
-      size: 8,
+    this.text(PAGE_WIDTH - MARGIN - 44, PAGE_HEIGHT - 24, `Pagina ${pageNumber}`, {
+      size: 7.5,
       bold: true,
-      color: MUTED,
+      color: COLORS.muted,
     });
   }
 
   render() {
-    pdfFields.forEach(([section, fields]) => {
-      this.sectionTitle(section);
-      fields.forEach(([label, key]) => this.field(label, displayValue(key, this.data)));
+    this.drawSummary();
+    pdfSections.forEach((section) => {
+      this.sectionTitle(section.title);
+      this.fieldsGrid(section.fields);
     });
     this.pages.forEach((_, index) => {
       const current = this.page;
